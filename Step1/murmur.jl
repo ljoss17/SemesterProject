@@ -35,10 +35,12 @@ function log_sum_body(k, p, C)
     return Float64(exp(res))
 end
 
-function murmur_totality(G, C, N::Int64=524288, f::Float64=0.2)
+function murmur_totality(G, N::Int64=524288, f::Float64=0.2)
     if f < 0 || f > 1
         throw(ArgumentError("Fraction of Byzantine processes f must be between 0 and 1"))
     end
+    C = floor(Int, (1-f)*N)
+    fill_log_sum_table(C)
     P = compute_p(G, N)
     ϵ = Float64(0.0)
     for k in 1:ceil(Int, C/2)
@@ -48,10 +50,8 @@ function murmur_totality(G, C, N::Int64=524288, f::Float64=0.2)
 end
 
 function run_murmur(G, N::Int64=524290, f::Float64=0.2)
-    C = floor(Int, (1-f)*N)
-    fill_log_sum_table(C)
     for n in 1:G
-        ϵ = murmur_totality(n, C)
+        ϵ = murmur_totality(n)
         println("(", n, ", ", ϵ, ")")
     end
 end
