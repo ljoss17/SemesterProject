@@ -1,7 +1,10 @@
 include("murmur.jl")
 
 function binomial_k(k, n, p)
-#    res = binomial(big(n), k)*p^k*(1-p)^(n-k)
+    # Compute probability of having value k in a
+    # binomial distribution Bin[n, p]
+
+    # If probability is 1 or 0, only two possible cases
     if p == 1
         if k == n
             return 1.0
@@ -21,6 +24,8 @@ function binomial_k(k, n, p)
 end
 
 function byzantine_echo_threshold(E, E_threshold, f)
+    # Compute probability of having more than E-E_threshold Byzantine
+    # processes in the sampling set E.
     ϵ_o = 0.0
     for F_bar in E-E_threshold+1:E
         ϵ_o = ϵ_o + binomial_k(F_bar, E, f)
@@ -36,7 +41,8 @@ function sieve_total_validity(G, E, E_threshold, N::Int64=1024, f::Float64=0.1)
     return ϵ_v
 end
 
-function two_phase_adversary_alpha(M, F_barPi, C, E, E_threshold)
+function alpha_function(M, F_barPi, C, E, E_threshold)
+    # α(M, F_barPi) as described at page 95.
     if (E-F_barPi) == 0 || (M/C) == 0
         α = 0
     else
@@ -45,19 +51,22 @@ function two_phase_adversary_alpha(M, F_barPi, C, E, E_threshold)
     return α
 end
 
-function two_phase_adversary_beta(M, F_barPi, C, E)
+function beta_function(M, F_barPi, C, E)
+    # β(M, F_barPi) as described at page 95.
     β = exp(-(E-F_barPi)*(M/C))
     return β
 end
 
 function simple_psi_two_params(M, F_barPi, C, E, E_threshold)
+    # Compute probability that at least L processes pb.Deliver a message m,
+    # before π delivers m, given F_barPi Byzantine processes in π's first echo sample.
     if E_threshold < F_barPi
         psi_condition = 0
     else
         psi_condition = (((E_threshold-F_barPi)-sqrt(E_threshold-F_barPi))/(E-F_barPi))
     end
     if (M/C) <= psi_condition
-        ψ = two_phase_adversary_alpha(M, F_barPi, C, E, E_threshold)*two_phase_adversary_beta(M, F_barPi, C, E)
+        ψ = alpha_function(M, F_barPi, C, E, E_threshold)*beta_function(M, F_barPi, C, E)
     else
         ψ = 1
     end
@@ -65,6 +74,8 @@ function simple_psi_two_params(M, F_barPi, C, E, E_threshold)
 end
 
 function simple_psi(L, C, E, E_threshold, f)
+    # Compute probability that at least L processes pb.Deliver a message m,
+    # before π delivers m.
     ψ = 0.0
     for F_barPi in 0:E_threshold
         ψ = ψ + (1 - (1-simple_psi_two_params(L, F_barPi, C, E, E_threshold))^floor(Int, C/L) * (1-simple_psi_two_params(mod(C, L), F_barPi, C, E, E_threshold)))*binomial_k(F_barPi, E, f)
@@ -73,6 +84,8 @@ function simple_psi(L, C, E, E_threshold, f)
 end
 
 function psi_tilde(L, C, E, E_threshold, f)
+    # Compute probability that exactly L processes pb.Deliver a message m,
+    # before π delivers m.
     if L == C
         ψ_tilde = 1
     elseif L == 1
@@ -83,15 +96,11 @@ function psi_tilde(L, C, E, E_threshold, f)
     return ψ_tilde
 end
 
-function echoesH_given_byzantinePopulation(echoes, E, F_barPi, k, C)
-    return binomial_k(echoes, E-F_barPi, k/C)
-end
-
 function deliverM_after_kProcesses_given_byzantinePopulation(E, E_threshold, F_barPi, k, C)
     # P[A^k_m[π] | F_π]
     res = 0.0
     for echoes in E_threshold-F_barPi:E-F_barPi
-        res = res + Float64(echoesH_given_byzantinePopulation(echoes, E, F_barPi, k, C))
+        res = res + binomial_k(echoes, E-F_barPi, k/C)
     end
     if res > 1
         res = 1.0
@@ -100,7 +109,7 @@ function deliverM_after_kProcesses_given_byzantinePopulation(E, E_threshold, F_b
 end
 
 function phi_plus(C, f, E, E_threshold, N_barH)
-    # sum ϕ(N_H) * P[F_π^+ | N_H]
+    # ∑ ϕ(N_H) * P[F_π^+ | N_H]
     sub_res = []
     # Consider non poisoned systems
     for F_barPi in 0:E_threshold-1
@@ -128,7 +137,7 @@ function phi_plus(C, f, E, E_threshold, N_barH)
 end
 
 function phi_minus(C, f, E, E_threshold, N_barH)
-    # sum ϕ(N_H) * P[F_π^- | N_H]
+    # ∑ ϕ(N_H) * P[F_π^- | N_H]
     sub_res = []
     # Consider non poisoned systems
     for F_barPi in 0:E_threshold-1
@@ -147,13 +156,17 @@ function phi_minus(C, f, E, E_threshold, N_barH)
 end
 
 function simple_phi(F_barPi, N_barHbar, C, E, E_threshold)
+    # Compute bound of the probability that the a correct process
+    # delivers any message m ≂̸ H, given N_barH the number of processes
+    # that pb.Delivered H and F_barPi the number of Byzantine processes
+    # in the first echo sample.
     if E_threshold < F_barPi
         phi_condition = 0
     else
         phi_condition = ((E_threshold-F_barPi)-sqrt(E_threshold-F_barPi))/(E-F_barPi)
     end
     if (C-N_barHbar)/C <= phi_condition
-        ϕ = two_phase_adversary_alpha(C-N_barHbar, F_barPi, C, E, E_threshold)*two_phase_adversary_beta(C-N_barHbar, F_barPi, C, E)
+        ϕ = alpha_function(C-N_barHbar, F_barPi, C, E, E_threshold)*beta_function(C-N_barHbar, F_barPi, C, E)
     else
         ϕ = 1
     end
@@ -161,6 +174,8 @@ function simple_phi(F_barPi, N_barHbar, C, E, E_threshold)
 end
 
 function phi_tilde(N_barH, C, E, E_threshold, f)
+    # Compute bound of the probability that the adversary compromises
+    # consistency, given N_barH processes have pb.Delivered H.
     ϕ_plus = phi_plus(C, f, E, E_threshold, N_barH)
     ϕ_minus = phi_minus(C, f, E, E_threshold, N_barH)
     if ϕ_minus < 0
@@ -174,6 +189,7 @@ function phi_tilde(N_barH, C, E, E_threshold, f)
 end
 
 function epsilon_p(C, f, E, E_threshold)
+    # Compute probability of system being poisoned.
     tmp = 0.0
     for F_bar in E_threshold:E
         tmp = tmp + binomial_k(F_bar, E, f)

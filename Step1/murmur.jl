@@ -1,8 +1,7 @@
-#etprecision(700)
-
 log_sum_table = []
 
 function fill_log_sum_table(C)
+    # Fill table of logarithmic value of factorial i
     old = 0.0
     for i in 1:C
         push!(log_sum_table, log(i)+old)
@@ -11,6 +10,8 @@ function fill_log_sum_table(C)
 end
 
 function compute_p(G, N)
+    # Probability p of any two correct processes being connected in a
+    # Erdos–Rényi graph
     if G > N || N < 1
         throw(ArgumentError("Set G must be smaller than N"))
     end
@@ -18,20 +19,14 @@ function compute_p(G, N)
     return p
 end
 
-function sum_body(k, p, C)
-    res = binomial(BigInt(C), BigInt(k))*(1-p)^(k*(C-k))
-    return res
-end
-
 function log_binomial_coefficient(n, k)
+    # Logarithmic value of a binomial coefficient of n and k.
     if n == k || k == 0
         return log(1)
     end
     if length(log_sum_table) < n+1
         fill_log_sum_table(n+1)
     end
-    #println("test2 : ", length(log_sum_table))
-    #println("n : ", n, " k : ", k)
     return log_sum_table[n] - log_sum_table[k] - log_sum_table[n-k]
 end
 
