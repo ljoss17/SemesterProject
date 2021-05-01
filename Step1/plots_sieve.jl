@@ -32,7 +32,7 @@ function plot_sieve_totalvalidity_E(;N::Int64=1024, f::Float64=0.1, G::Int64=300
     savefig(p, fp*"sieve_totalvalidity_changeE_N($N)_f($f)_G($G)_E_thr($E_thr).png")
 end
 
-function plot_sieve_totalvalidity_E_thr(;N::Int64=1024, f::Float64=0.1, G::Int64=300, E::Int64=200, minE_thr::Int64=200, maxE_thr::Int64=400, step::Int64=10)
+function plot_sieve_totalvalidity_E_thr(;N::Int64=1024, f::Float64=0.1, G::Int64=300, E::Int64=400, minE_thr::Int64=200, maxE_thr::Int64=400, step::Int64=10)
     if minE_thr > maxE_thr
         println("Error : minimum value of E can't be bigger than max value of E. min E threshold : $minE_thr, max E threshold : $maxE_thr")
         return
@@ -92,7 +92,7 @@ function plot_sieve_consistency_E(;N::Int64=1024, f::Float64=0.1, E_thr::Int64=2
     savefig(p, fp*"sieve_consistency_changeE_N($N)_f($f)_E_thr($E_thr).png")
 end
 
-function plot_sieve_sieve_consistency_E_thr(;N::Int64=1024, f::Float64=0.1, E::Int64=200, minE_thr::Int64=200, maxE_thr::Int64=400, step::Int64=10)
+function plot_sieve_sieve_consistency_E_thr(;N::Int64=1024, f::Float64=0.1, E::Int64=400, minE_thr::Int64=200, maxE_thr::Int64=400, step::Int64=10)
     if minE_thr > maxE_thr
         println("Error : minimum value of E can't be bigger than max value of E. min E threshold : $minE_thr, max E threshold : $maxE_thr")
         return

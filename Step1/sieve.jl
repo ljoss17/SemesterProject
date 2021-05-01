@@ -35,7 +35,7 @@ end
 
 function sieve_total_validity(G, E, E_threshold, N::Int64=1024, f::Float64=0.1)
     C = floor(Int, (1-f)*N)
-    ϵ_t = murmur_totality(G, C, N, f)
+    ϵ_t = murmur_totality(G, N, f)
     ϵ_o = byzantine_echo_threshold(E, E_threshold, f)
     ϵ_v = ϵ_t + (1-ϵ_t)*(1-(1-ϵ_o)^C)
     return ϵ_v
