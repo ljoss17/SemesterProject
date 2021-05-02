@@ -102,6 +102,7 @@ function deliverM_after_kProcesses_given_byzantinePopulation(E, E_threshold, F_b
     for echoes in E_threshold-F_barPi:E-F_barPi
         res = res + binomial_k(echoes, E-F_barPi, k/C)
     end
+    # Due to rounding, sum can be slightly bigger than 1
     if res > 1
         res = 1.0
     end
@@ -115,7 +116,8 @@ function phi_plus(C, f, E, E_threshold, N_barH)
     for F_barPi in 0:E_threshold-1
         P_F_barPi = binomial_k(F_barPi, E, f)
         tmp = (deliverM_after_kProcesses_given_byzantinePopulation(E, E_threshold, F_barPi, N_barH, C)-deliverM_after_kProcesses_given_byzantinePopulation(E, E_threshold, F_barPi, N_barH-1, C))*P_F_barPi
-        if tmp < 1e-80
+        # Due to rounding the difference can be a very small negative value.
+        if tmp < 0
             tmp = 0.0
         end
         push!(sub_res, tmp)
@@ -130,6 +132,7 @@ function phi_plus(C, f, E, E_threshold, N_barH)
             res = res + simple_phi(F_barPi, N_barH, C, E, E_threshold)*(sub_res[F_barPi+1]/denom)
         end
     end
+    # Due to rounding, sum can be slightly bigger than 1
     if res > 1
         res = 1.0
     end
@@ -178,9 +181,11 @@ function phi_tilde(N_barH, C, E, E_threshold, f)
     # consistency, given N_barH processes have pb.Delivered H.
     ϕ_plus = phi_plus(C, f, E, E_threshold, N_barH)
     ϕ_minus = phi_minus(C, f, E, E_threshold, N_barH)
+    # Due to rounding, the value can be a very small negative number
     if ϕ_minus < 0
         ϕ_minus = 0.0
     end
+    # Due to rounding, sum can be slightly bigger than 1
     if ϕ_minus > 1
         ϕ_minus = 1.0
     end

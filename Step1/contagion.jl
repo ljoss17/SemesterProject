@@ -36,6 +36,7 @@ function compute_nextStep(R, R_threshold, l, N, Nbar_r_i, Ubar_i, Nbar_next, Uba
     # Compute probability of going to the next state (N_i+1,U_i+1) given (N_i,U_i).
     # P[N_i+1, U_i+1 | N_i, U_i]
     pw = compute_infected_round_r_only(R, R_threshold, Nbar_r_i, Ubar_i, l, N)
+    # Due to rounding, sum can be slightly bigger than 1
     if pw > 1
         pw = 1
     end
@@ -129,6 +130,7 @@ function specific_enough_ready(D, D_threshold, γ_barPlus, N)
     for D_bar in D_threshold:D
         μ_tilde = μ_tilde + binomial_k(D_bar, D, γ_barPlus/N)
     end
+    # Due to rounding, sum can be slightly bigger than 1
     if μ_tilde > 1
         return 1.0
     end
@@ -139,16 +141,9 @@ function any_enough_ready(N, C, D, D_threshold, R, R_threshold)
     # Compute probability any correct process eventually collects enough Ready(m)
     # to deliver m.
     μ = 0.0
-    counter = 5
     for γ_barPlus in N-C:N
         p_g = compute_gamma(N, R, 1, 1, N-C, R_threshold, γ_barPlus, 0, 0)
         μ = μ + (1-(1-specific_enough_ready(D, D_threshold, γ_barPlus, N))^C)*p_g
-        if p_g == 0
-            counter = counter - 1
-        end
-        if counter == 0
-            break
-        end
     end
     return μ
 end

@@ -7,14 +7,17 @@ function compute_epsilon(;N::Int64=1024, f::Float64=0.1, G::Int64=300, E::Int64=
     return ϵ_t, ϵ_v, ϵ_c
 end
 
-function generate_results()
+function generate_results(n_min::Int64=70, n_max::Int64=130)
     println("Start :")
-    for n in 70:130
+    open("results.txt", "w") do io
+        write(io, "For N $n_min to $n_max:\n\n")
+    end
+    for n in n_min:n_max
         println("n : $n")
         ϵ_t, ϵ_v, ϵ_c = compute_epsilon(N=n, G=15, E=15, E_threshold=5, R=15, R_threshold=5, D=15, D_threshold=5)
         ϵ = max(ϵ_t, ϵ_v, ϵ_c)
         open("results.txt", "a") do io
-            write(io, "Value ϵ : $ϵ. With ϵ_t : $ϵ_t, ϵ_v : $ϵ_v, ϵ_c : $ϵ_c\n")
+            write(io, "Values for N : $N || ϵ : $ϵ. With ϵ_t : $ϵ_t, ϵ_v : $ϵ_v, ϵ_c : $ϵ_c\n")
         end
     end
 end
