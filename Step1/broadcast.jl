@@ -17,7 +17,7 @@ function generate_results(n_min::Int64=70, n_max::Int64=130)
         ϵ_t, ϵ_v, ϵ_c = compute_epsilon(N=n, G=15, E=15, E_threshold=5, R=15, R_threshold=5, D=15, D_threshold=5)
         ϵ = max(ϵ_t, ϵ_v, ϵ_c)
         open("results.txt", "a") do io
-            write(io, "Values for N : $N || ϵ : $ϵ. With ϵ_t : $ϵ_t, ϵ_v : $ϵ_v, ϵ_c : $ϵ_c\n")
+            write(io, "Values for N : $n || ϵ : $ϵ. With ϵ_t : $ϵ_t, ϵ_v : $ϵ_v, ϵ_c : $ϵ_c\n")
         end
     end
 end

@@ -103,10 +103,7 @@ function deliverM_after_kProcesses_given_byzantinePopulation(E, E_threshold, F_b
         res = res + binomial_k(echoes, E-F_barPi, k/C)
     end
     # Due to rounding, sum can be slightly bigger than 1
-    if res > 1
-        res = 1.0
-    end
-    return Float64(res)
+    return min(1.0, res)
 end
 
 function phi_plus(C, f, E, E_threshold, N_barH)
@@ -117,10 +114,7 @@ function phi_plus(C, f, E, E_threshold, N_barH)
         P_F_barPi = binomial_k(F_barPi, E, f)
         tmp = (deliverM_after_kProcesses_given_byzantinePopulation(E, E_threshold, F_barPi, N_barH, C)-deliverM_after_kProcesses_given_byzantinePopulation(E, E_threshold, F_barPi, N_barH-1, C))*P_F_barPi
         # Due to rounding the difference can be a very small negative value.
-        if tmp < 0
-            tmp = 0.0
-        end
-        push!(sub_res, tmp)
+        push!(sub_res, max(0.0, tmp))
     end
     denom = sum(sub_res)
     res = 0.0
@@ -133,10 +127,7 @@ function phi_plus(C, f, E, E_threshold, N_barH)
         end
     end
     # Due to rounding, sum can be slightly bigger than 1
-    if res > 1
-        res = 1.0
-    end
-    return res
+    return min(1.0, res)
 end
 
 function phi_minus(C, f, E, E_threshold, N_barH)
