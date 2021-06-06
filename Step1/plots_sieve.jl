@@ -93,6 +93,7 @@ function plot_sieve_consistency_E(;N::Int64=1024, f::Float64=0.1, E_thr::Int64=2
     p = plot(
         x,
         y,
+        yscale=:log10,
         title=string(" E_T : ", E_thr),
         xlabel="E",
         ylabel="ϵ-consistency for Sieve",
@@ -126,6 +127,7 @@ function plot_sieve_sieve_consistency_E_thr(;N::Int64=1024, f::Float64=0.1, E::I
     p = plot(
         x,
         y,
+        yscale=:log10,
         title=string(" E : ", E),
         xlabel="E_thr",
         ylabel="ϵ-consistency for Sieve",
