@@ -584,6 +584,49 @@ function plot_gamma_totality(;N::Int64=1024, f::Float64=0.1, K::Int64=921, R::In
     savefig(p, fp*pre*"gamma_totality_N($N)_K($K)_R($R)_R_t($R_t)")
 end
 
+function plot_gamma_distribution(;N::Int64=60, R::Int64=30, R_t::Int64=12, f::Float64=0.1, minX::Int64=115, maxX::Int64=128)
+    C = floor(Int, (1-f)*N)
+    S = N-C
+    γ_end = N
+    γs = threshold_contagion(N, R, 1, 1, S, R_t, γ_end)
+    if length(γs) < maxX+1
+    end
+    println(γs)
+    p = plot(
+        [minX:maxX],
+        γs[minX+1:maxX+1]
+    )
+    display(p)
+    savefig(p, fp*"/gammas/N_($N)")
+end
+
+function plot_consistency_gammas(;r::Int64=35, r_t::Int64=12, minN::Int64=100, maxN::Int64=300)
+    minC = floor(Int, (1-0.1)*minN)
+    maxN = 300
+    for n in minN:10:maxN
+        plot_gamma_distribution(N=n, R=r, R_t=r_t, minX=minC, maxX=maxN)
+    end
+end
+
+function plot_totality_gammas(;N::Int64=1024, r::Int64=200, r_t::Int64=60)
+    C = floor(Int, 0.9*N)
+    dists = contagion_threshold(C, r, 0.9, C, 1, r_t, C)
+    k = 0
+    for y in dists
+        k = k+1
+        p = plot(
+            [1:C+1],
+            y,
+            title=string("Gamma distribtuion, round : $k"),
+            xlabel="gamma",
+            ylabel="p[γ]",
+            legend=false
+        )
+        savefig(p, fp*"/gammas/totality_K_($k)")
+    end
+
+end
+
 function run_gammas()
     R_thr = 100
     for r in 100:50:300

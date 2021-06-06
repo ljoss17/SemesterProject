@@ -15,11 +15,14 @@ function plot_sieve_totalvalidity_E(;N::Int64=1024, f::Float64=0.1, G::Int64=300
         println("Error : maximum value of E can't be bigger than N. max E : $maxE, N : $N")
         return
     end
-    x = []
-    y = []
+    it::Int64 = ((maxE-minE)/step)+1
+    x::Array{Int64, 1} = zeros(it)
+    y::Array{Float128, 1} = zeros(it)
+    ind = 1
     for e in minE:step:maxE
-        push!(x, e)
-        push!(y, sieve_total_validity(G, e, E_thr))
+        x[ind] = e
+        y[ind] = sieve_total_validity(G, e, E_thr)
+        ind = ind+1
     end
     p = plot(
         x,
@@ -29,7 +32,7 @@ function plot_sieve_totalvalidity_E(;N::Int64=1024, f::Float64=0.1, G::Int64=300
         ylabel="ϵ-total validity for Sieve",
         legend=false,
     )
-    savefig(p, fp*"sieve_totalvalidity_changeE_N($N)_f($f)_G($G)_E_thr($E_thr).png")
+    savefig(p, fp*"sieve_totalvalidity_changeE_N($N)_f($f)_G($G)_E_thr($E_thr)_E_from($minE)_to($maxE).png")
 end
 
 function plot_sieve_totalvalidity_E_thr(;N::Int64=1024, f::Float64=0.1, G::Int64=300, E::Int64=400, minE_thr::Int64=200, maxE_thr::Int64=400, step::Int64=10)
@@ -45,11 +48,14 @@ function plot_sieve_totalvalidity_E_thr(;N::Int64=1024, f::Float64=0.1, G::Int64
         println("Error : maximum value of E threshold can't be bigger than N. max E threshold : $maxE_thr, N : $N")
         return
     end
-    x = []
-    y = []
+    it::Int64 = ((maxE_thr-minE_thr)/step)+1
+    x::Array{Int64, 1} = zeros(it)
+    y::Array{Float128, 1} = zeros(it)
+    ind = 1
     for e_thr in minE_thr:step:maxE_thr
-        push!(x, e_thr)
-        push!(y, sieve_total_validity(G, E, e_thr))
+        x[ind] = e_thr
+        y[ind] = sieve_total_validity(G, E, e_thr)
+        ind = ind+1
     end
     p = plot(
         x,
@@ -59,7 +65,7 @@ function plot_sieve_totalvalidity_E_thr(;N::Int64=1024, f::Float64=0.1, G::Int64
         ylabel="ϵ-total validity for Sieve",
         legend=false,
     )
-    savefig(p, fp*"sieve_totalvalidity_changeE-thr_N($N)_f($f)_G($G)_E($E).png")
+    savefig(p, fp*"sieve_totalvalidity_changeE-thr_N($N)_f($f)_G($G)_E($E)_Ethr_from($minE_thr)_to($maxE_thr).png")
 end
 
 function plot_sieve_consistency_E(;N::Int64=1024, f::Float64=0.1, E_thr::Int64=200, minE::Int64=200, maxE::Int64=400, step::Int64=10)
@@ -75,11 +81,14 @@ function plot_sieve_consistency_E(;N::Int64=1024, f::Float64=0.1, E_thr::Int64=2
         println("Error : maximum value of E can't be bigger than N. max E : $maxE, N : $N")
         return
     end
-    x = []
-    y = []
+    it::Int64 = ((maxE-minE)/step)+1
+    x::Array{Int64, 1} = zeros(it)
+    y::Array{Float128, 1} = zeros(it)
+    ind = 1
     for e in minE:step:maxE
-        push!(x, e)
-        push!(y, sieve_consistency(e, E_thr))
+        x[ind] = e
+        y[ind] = sieve_consistency(e, E_thr)
+        ind = ind+1
     end
     p = plot(
         x,
@@ -89,7 +98,7 @@ function plot_sieve_consistency_E(;N::Int64=1024, f::Float64=0.1, E_thr::Int64=2
         ylabel="ϵ-consistency for Sieve",
         legend=false,
     )
-    savefig(p, fp*"sieve_consistency_changeE_N($N)_f($f)_E_thr($E_thr).png")
+    savefig(p, fp*"sieve_consistency_changeE_N($N)_f($f)_E_thr($E_thr)_E_from($minE)_to($maxE).png")
 end
 
 function plot_sieve_sieve_consistency_E_thr(;N::Int64=1024, f::Float64=0.1, E::Int64=400, minE_thr::Int64=200, maxE_thr::Int64=400, step::Int64=10)
@@ -105,11 +114,14 @@ function plot_sieve_sieve_consistency_E_thr(;N::Int64=1024, f::Float64=0.1, E::I
         println("Error : maximum value of E threshold can't be bigger than N. max E threshold : $maxE_thr, N : $N")
         return
     end
-    x = []
-    y = []
+    it::Int64 = ((maxE_thr-minE_thr)/step)+1
+    x::Array{Int64, 1} = zeros(it)
+    y::Array{Float128, 1} = zeros(it)
+    ind = 1
     for e_thr in minE_thr:step:maxE_thr
-        push!(x, e_thr)
-        push!(y, sieve_consistency(E, e_thr))
+        x[ind] = e_thr
+        y[ind] = sieve_consistency(E, e_thr)
+        ind = ind+1
     end
     p = plot(
         x,
@@ -119,20 +131,23 @@ function plot_sieve_sieve_consistency_E_thr(;N::Int64=1024, f::Float64=0.1, E::I
         ylabel="ϵ-consistency for Sieve",
         legend=false,
     )
-    savefig(p, fp*"sieve_consistency_changeE-thr_N($N)_f($f)_E($E).png")
+    savefig(p, fp*"sieve_consistency_changeE-thr_N($N)_f($f)_E($E)_Ethr_from($minE_thr)_to($maxE_thr).png")
 end
 
 function plot_sieve()
     N = 1024
     E = 300
     E_thr = 100
-    G = 250
+    G = 100
     step = 1
-    for n in 9:12
-        # Plot for N=512,1024,...,4096
-        plot_sieve_totalvalidity_E(N=2^n, G=G, E_thr=E_thr, minE=E_thr, maxE=3*E_thr, step=1)
-        plot_sieve_consistency_E(N=2^n, E_thr=E_thr, minE=E_thr, maxE=3*E_thr, step=1)
-        plot_sieve_totalvalidity_E_thr(N=2^n, G=G, E=E, minE_thr=floor(Int, E/3), maxE_thr=E, step=1)
-        plot_sieve_sieve_consistency_E_thr(N=2^n, E=E, minE_thr=floor(Int, E/3), maxE_thr=E, step=1)
+    for p in 80:10:200
+        println("p : $p")
+        @time plot_sieve_totalvalidity_E(N=N, G=G, E_thr=p, minE=100, maxE=400, step=10)
+        @time plot_sieve_consistency_E(N=N, E_thr=p, minE=100, maxE=400, step=10)
+    end
+    for p in 100:10:300
+        println("p : $p")
+        @time plot_sieve_totalvalidity_E_thr(N=N, G=G, E=p, minE_thr=50, maxE_thr=min(100, p), step=10)
+        @time plot_sieve_sieve_consistency_E_thr(N=N, E=p, minE_thr=50, maxE_thr=min(100, p), step=10)
     end
 end

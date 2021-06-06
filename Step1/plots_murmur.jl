@@ -1,15 +1,21 @@
 using Plots
+using Quadmath
 
 fp = "~/Documents/Julia/SemesterProject/Step1/Murmur/"
 
-function plot_murmur_G(N::Int64=102400, f::Float64=0.1, minG::Int64=300, maxG::Int64=1000, step::Int64=1)
-    x = []
-    y = []
+function plot_murmur_G(;N::Int64=102400, f::Float64=0.1, minG::Int64=300, maxG::Int64=1000, step::Int64=1)
+    it::Int64 = ((maxG-minG)/step)+1
+    x::Array{Int64, 1} = zeros(it)
+    y::Array{Float128, 1} = zeros(it)
+    f2::Float128 = Float128(f)
+    ind = 1
     for g in minG:step:maxG
-        push!(x, g)
-        push!(y, murmur_totality(g, N))
+        x[ind] = g
+        y[ind] = murmur_totality(g, N, f2)
+        ind = ind+1
     end
-
+    println(x)
+    println(y)
     p = plot(
         x,
         y,
