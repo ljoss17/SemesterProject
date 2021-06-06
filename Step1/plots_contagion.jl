@@ -1,7 +1,6 @@
-using Plots
 include("contagion.jl")
 
-fp = "~/Documents/Julia/SemesterProject/Step1/Contagion/"
+fp = pwd()*"/Contagion/"
 
 function plot_contagion_totality_E(;N::Int64=1024, f::Float64=0.1, E_thr::Int64=200, D::Int64=300, D_thr::Int64=200, R::Int64=300, R_thr::Int64=200, minE::Int64=200, maxE::Int64=400, step::Int64=10)
     if minE > maxE

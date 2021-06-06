@@ -1,6 +1,4 @@
-using Plots
-
-fp = "~/Documents/Julia/SemesterProject/Step1/Sieve/"
+fp = pwd()*"/Sieve/"
 
 function plot_sieve_totalvalidity_E(;N::Int64=1024, f::Float64=0.1, G::Int64=300, E_thr::Int64=200, minE::Int64=200, maxE::Int64=400, step::Int64=10)
     if minE > maxE
