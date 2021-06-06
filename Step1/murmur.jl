@@ -1,4 +1,9 @@
-log_sum_table = []
+mutable struct SumTable
+    table::Array{Float128,1}
+    highest::Int64
+end
+
+log_sum_table = SumTable(zeros(1), 0)
 
 function kahan_summation(values)::Float128
     # Kahan summation algorithm on array of values
@@ -17,11 +22,13 @@ end
 
 function fill_log_sum_table(C)
     # Fill table of logarithmic value of factorial i
+    log_sum_table.table = zeros(C)
     old::Float128 = 0.0
     for i in 1:C
-        push!(log_sum_table, log(i)+old)
-        old = log_sum_table[i]
+        log_sum_table.table[i] = log(i)+old
+        old = log_sum_table.table[i]
     end
+    log_sum_table.highest = C
 end
 
 function compute_p(G, N)::Float128
@@ -39,10 +46,10 @@ function log_binomial_coefficient(n, k)::Float128
     if n == k || k == 0
         return log(1)
     end
-    if length(log_sum_table) < n+1
-        fill_log_sum_table(n+1)
+    if log_sum_table.highest < n
+        fill_log_sum_table(n)
     end
-    return log_sum_table[n] - log_sum_table[k] - log_sum_table[n-k]
+    return log_sum_table.table[n] - log_sum_table.table[k] - log_sum_table.table[n-k]
 end
 
 function log_sum_body(k, p, C)::Float128

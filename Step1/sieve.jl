@@ -162,14 +162,14 @@ end
 
 function phi_plus(C, f, E, E_threshold, N_barH)::Float128
     # ∑ ϕ(N_H) * P[F_π^+ | N_H]
-    P_ANh_H::Float128, P_ANh_H_Fπ::Array{Float128, 1},  = deliverM_after_kProcesses(E, E_threshold, N_barH, C, f)
+    P_ANh_H::Float128, P_ANh_H_Fπ::Array{Float128, 1} = deliverM_after_kProcesses(E, E_threshold, N_barH, C, f)
     P_ANhm1_H::Float128, P_ANhm1_H_Fπ::Array{Float128, 1} = deliverM_after_kProcesses(E, E_threshold, N_barH-1, C, f)
     denom::Float128 = P_ANh_H-P_ANhm1_H
-    res_vals::Array{Float128, 1} = zeros(E_threshold)
     if denom == 0
-        println("ERROR denom is 0")
+        #println("ERROR in + : denom is 0")
         return 0.0
     end
+    res_vals::Array{Float128, 1} = zeros(E_threshold)
     for F_barPi in 0:E_threshold-1
         #pf::Float128 = binomial_k(E, f, F_barPi)
         #tmp::Float128 = (deliverM_after_kProcesses_given_byzantinePopulation(E, E_threshold, F_barPi, N_barH, C, f) - deliverM_after_kProcesses_given_byzantinePopulation(E, E_threshold, F_barPi, N_barH-1, C, f))*pf
@@ -184,6 +184,10 @@ function phi_minus(C, f, E, E_threshold, N_barH)::Float128
     # ∑ ϕ(N_H) * P[F_π^- | N_H]
     P_ANhm1_H::Float128, P_ANhm1_H_Fπ::Array{Float128, 1} = deliverM_after_kProcesses(E, E_threshold, N_barH-1, C, f)
     denom::Float128 = 1-P_ANhm1_H
+    if denom == 0
+        #println("ERROR in - : denom is 0")
+        return 0.0
+    end
     vals::Array{Float128, 1} = zeros(E_threshold)
     # Consider non poisoned systems
     for F_barPi in 0:E_threshold-1
@@ -225,11 +229,7 @@ end
 
 function epsilon_p(C, f, E, E_threshold)::Float128
     # Compute probability of system being poisoned.
-    vals::Array{Float128, 1} = zeros(E-E_threshold+1)
-    for F_bar in E_threshold:E
-        vals[F_bar-E_threshold+1] = binomial_k(E, f, F_bar)
-    end
-    tmp::Float128 = kahan_summation(vals)
+    tmp::Float128 = sum_binomial(E_threshold, E, E, f)
     ϵ_p::Float128 = 1 - (1 - tmp)^C
     return check_rounding(ϵ_p)
 end
@@ -239,6 +239,8 @@ function sieve_consistency(E, E_threshold, N::Int64=1024, f::Float64=0.1)::Float
     vals::Array{Float128, 1} = zeros(C+1)
     vals[1] = epsilon_p(C, f, E, E_threshold)
     for L in 1:C
+        t1::Float128 = phi_tilde(L, C, E, E_threshold, f)
+        t2::Float128 = psi_tilde(L, C, E, E_threshold, f)
         vals[L+1] = phi_tilde(L, C, E, E_threshold, f)*psi_tilde(L, C, E, E_threshold, f)
     end
     ϵ_c::Float128 = kahan_summation(vals)

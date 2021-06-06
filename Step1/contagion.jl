@@ -352,7 +352,7 @@ end
 
 function contagion_totality(E, E_threshold, D, D_threshold, R, R_threshold, N::Int64=1024, f::Float64=0.1)::Float128
     C = floor(Int, (1-f)*N)
-
+    println("E : $E, E_thr : $E_threshold, N : $N, f : $f")
     ϵ_pcb::Float128 = sieve_consistency(E, E_threshold, N, f)
     println("ϵ_pcb : $ϵ_pcb")
     μ::Float128 = any_enough_ready(N, C, D, D_threshold, R, R_threshold)
