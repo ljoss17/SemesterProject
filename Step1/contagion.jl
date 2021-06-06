@@ -143,6 +143,10 @@ function contagion_threshold(N, R, l, K, S, R_threshold, γ_end)
         all_dists[k] = copy(dist)
         dist_old = zeros(γ_end+1, γ_end+1)
         dist_old[3:γ_end+1, 2] = dist[2:γ_end]
+        # If infecting S new nodes is results in more than N, then keep N infected.
+        # So the probability of being in state (γ_end, 0) at round k+1 is equal to
+        # the probability of being in state (γ_end, 0) at round k, plus the contagion threshold computations.
+        dist_old[γ_end+1, 1] = dist[γ_end+1]
     end
     return all_dists
 end
