@@ -19,12 +19,7 @@ end
 
 function compute_infected_round_r_only(R, R_threshold, Nbar_i, Ubar_i, l, N)::Float128
     # P[W_r_i+1 | not(W_r_i-1), s_h]
-    tmp::Array{Float128, 1} = zeros(R_threshold)
-    for vim1 in 1:R_threshold
-        Vim1::Int64 = vim1 - 1
-        tmp[vim1] = binomial_k(R, l*(Nbar_i-Ubar_i)/N, Vim1)
-    end
-    denom::Float128 = kahan_summation(tmp)
+    denom::Float128 = sum_binomial(0, R_threshold-1, R, l*(Nbar_i-Ubar_i)/N)
     vals::Array{Float128, 1} = zeros(R_threshold)
     for vim1 in 1:R_threshold
         Vim1::Int64 = vim1-1
@@ -47,12 +42,6 @@ function compute_nextStep(R, R_threshold, l, N, Nbar_r_i, Ubar_i, Nbar_next, Uba
     # P[N_i+1, U_i+1 | N_i, U_i]
     pw::Float128 = pwi.prob[Nbar_r_i+1, Ubar_i+1]
     next::Float128 = binomial_k(N-Nbar_r_i, pw, Ubar_next)
-    #next2 = binomial_k_taylor(N-Nbar_r_i, pw, Ubar_next)
-    #if next != next2
-    #    println("N-Nbar_r_i : $(N-Nbar_r_i), pw : $pw, Ubar_next : $Ubar_next")
-    #    println("next : $next")
-#        println("next2 : $next2")
-#    end
     return check_rounding(next)
 end
 
@@ -84,7 +73,6 @@ function threshold_contagion_single_round(N, R, l, K, S, R_threshold, γ_end)
     for u in 0:γ_end-S
         n::Int64 = S+u
         dist[n+1, u+1] = compute_nextStep(R, R_threshold, l, N, S, S, n, u)
-        #println("Compute from state ($S, $S) to state ($n, $u)")
     end
     for N_i in S+1:γ_end
         n_i::Int64 = N_i+1
@@ -95,7 +83,6 @@ function threshold_contagion_single_round(N, R, l, K, S, R_threshold, γ_end)
                 t1 = dist[previous_n+1, i+1]
                 if t1 != 0
                     t2::Float128 = compute_nextStep(R, R_threshold, l, N, previous_n, i, N_i, U_i)
-                    #println("Compute from state ($previous_n, $i) to state ($N_i, $U_i)")
                     dist[n_i, u_i] = dist[n_i, u_i] + t1*t2
                 end
             end
@@ -113,7 +100,6 @@ function threshold_contagion_multiple_rounds(N, R, l, K, S, R_threshold, γ_end,
         for u in 0:γ_end-S
             n::Int64 = S+u
             dist[n+1, u+1] = compute_nextStep(R, R_threshold, l, N, S, S, n, u)
-            #println("Compute from state ($S, $S) to state ($n, $u)")
         end
     end
     for N_i in K:γ_end
@@ -125,7 +111,6 @@ function threshold_contagion_multiple_rounds(N, R, l, K, S, R_threshold, γ_end,
                 t1 = dist[previous_n+1, i+1]
                 if t1 != 0
                     t2::Float128 = compute_nextStep(R, R_threshold, l, N, previous_n, i, N_i, U_i)
-                    #println("t1 : $t1, t2 : $t2 | Compute from state ($previous_n, $i) to state ($N_i, $U_i)")
                     dist[n_i, u_i] = dist[n_i, u_i] + t1*t2
                 end
             end
@@ -139,7 +124,6 @@ function contagion_threshold(N, R, l, K, S, R_threshold, γ_end)
     all_dists = fill(Float128[], 1, K)
     for k in 1:K
         dist = threshold_contagion_multiple_rounds(N, R, l, k, S, R_threshold, γ_end, dist_old)
-        #println(dist)
         all_dists[k] = copy(dist)
         dist_old = zeros(γ_end+1, γ_end+1)
         dist_old[3:γ_end+1, 2] = dist[2:γ_end]
@@ -152,6 +136,8 @@ function contagion_threshold(N, R, l, K, S, R_threshold, γ_end)
 end
 
 function compute_gamma(N, R, l, K, S, R_threshold, γ_end)::Float64
+    # This function is not used.
+
     # Compute the probability the Threshold Contagion ends with exactly γ_end
     # after K rounds. P[γ(N,R,l,K,S,R_threshold)=γ_end]
 
@@ -255,18 +241,13 @@ end
 function specific_enough_ready(D, D_threshold, γ_barPlus, N)::Float128
     # Compute probability that one specific process eventually collects enough Ready(m)
     # to deliver m.
-    vals::Array{Float128, 1} = zeros(D-D_threshold+1)
-    for D_bar in D_threshold:D
-        vals[D_bar-D_threshold+1] = binomial_k(D, γ_barPlus/N, D_bar)
-    end
-    μ_tilde::Float128 = kahan_summation(vals)
+    μ_tilde::Float128 = sum_binomial(D_threshold, D, D, γ_barPlus/N)
     return check_rounding(μ_tilde)
 end
 
 function any_enough_ready(N, C, D, D_threshold, R, R_threshold)::Float128
     # Compute probability any correct process eventually collects enough Ready(m)
     # to deliver m.
-    #μ = 0.0
     dists = contagion_threshold(N, R, 1, 1, N-C, R_threshold, N)
     γs = dists[1]
     vals = zeros(C+1)
@@ -282,31 +263,19 @@ end
 
 function contagion_consistency(E, E_threshold, D, D_threshold, R, R_threshold, N::Int64=1024, f::Float64=0.1)::Float128
     C = floor(Int, (1-f)*N)
-
     μ::Float128 = any_enough_ready(N, C, D, D_threshold, R, R_threshold)
-    println("μ : $μ")
     ϵ_pcb::Float128 = sieve_consistency(E, E_threshold, N, f)
-    println("ϵ_pcb : $ϵ_pcb")
     ϵ_c::Float128 = ϵ_pcb + (1 - ϵ_pcb)*μ
-    println("ϵ_c : $ϵ_c")
     return ϵ_c
 end
 
 function alpha_minus(γ, N, D, D_threshold)::Float128
-    vals::Array{Float128, 1} = zeros(D-D_threshold+1)
-    for D_bar in D_threshold:D
-        vals[D_bar-D_threshold+1] = binomial_k(D, γ/N, D_bar)
-    end
-    res::Float128 = kahan_summation(vals)
+    res::Float128 = sum_binomial(D_threshold, D, D, γ/N)
     return res
 end
 
 function alpha_plus(γ, N, C, D, D_threshold)::Float128
-    vals::Array{Float128, 1} = zeros(D-D_threshold+1)
-    for D_bar in D_threshold:D
-        vals[D_bar-D_threshold+1] = binomial_k(D, (γ+(N-C))/N, D_bar)
-    end
-    res::Float128 = kahan_summation(vals)
+    res::Float128 = sum_binomial(D_threshold, D, D, (γ+(N-C))/N)
     return res
 end
 
@@ -342,9 +311,6 @@ function epsilon_b(N, f, C, D, D_threshold, R, R_threshold)::Float128
                 if γ_n >= n
                     p_γ = current_γ[γ_n+1]
                     α = compute_alpha(γ_n, N, C, D, D_threshold)
-                    if γ_n == C
-                        println("n : $n, p_γ : $p_γ, α : $α")
-                    end
                     vals[(C*(n-1))+γ_n] = (p_γ*α)
                 end
             end
@@ -356,27 +322,9 @@ end
 
 function contagion_totality(E, E_threshold, D, D_threshold, R, R_threshold, N::Int64=1024, f::Float64=0.1)::Float128
     C = floor(Int, (1-f)*N)
-    println("E : $E, E_thr : $E_threshold, N : $N, f : $f")
     ϵ_pcb::Float128 = sieve_consistency(E, E_threshold, N, f)
-    println("ϵ_pcb : $ϵ_pcb")
     μ::Float128 = any_enough_ready(N, C, D, D_threshold, R, R_threshold)
-    println("μ : $μ")
     ϵ_b::Float128 = epsilon_b(N, f, C, D, D_threshold, R, R_threshold)
-    println("ϵ_b : $ϵ_b")
     ϵ_t::Float128 = ϵ_pcb + μ + ϵ_b
-    #println("ϵ_t : $ϵ_t")
     return ϵ_t
-end
-
-function runPwi()
-    N = 8192;
-    R = 128;
-    R_threshold = 48;
-    Ni = 2000
-    f = 0.15;
-
-    for u in 0:Ni
-        v = compute_infected_round_r_only(R, R_threshold, Ni, u, 1, N)
-        println("($Ni/$u): $v")
-    end
 end

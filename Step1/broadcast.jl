@@ -33,16 +33,16 @@ function generate_results_params(p_min::Int64=150, p_max::Int64=300)
     end
     for p in p_min:10:p_max
         println("p : $p")
-        ϵ_t, ϵ_v, ϵ_c = compute_epsilon(N=N, G=G, E=E, E_threshold=E_thr, R=p, R_threshold=60, D=100, D_threshold=60)
+        ϵ_t, ϵ_v, ϵ_c = compute_epsilon(N=N, G=G, E=E, E_threshold=E_thr, R=150, R_threshold=p, D=150, D_threshold=70)
         ϵ = max(ϵ_t, ϵ_v, ϵ_c)
         open("results_params.txt", "a") do io
-            write(io, "Values for R : $p || ϵ : $ϵ. With ϵ_t : $ϵ_t, ϵ_v : $ϵ_v, ϵ_c : $ϵ_c\n")
+            write(io, "Values for R_thr : $p || ϵ : $ϵ. With ϵ_t : $ϵ_t, ϵ_v : $ϵ_v, ϵ_c : $ϵ_c\n")
         end
         println("R done")
-        ϵ_t, ϵ_v, ϵ_c = compute_epsilon(N=N, G=G, E=E, E_threshold=E_thr, R=100, R_threshold=60, D=p, D_threshold=60)
+        ϵ_t, ϵ_v, ϵ_c = compute_epsilon(N=N, G=G, E=E, E_threshold=E_thr, R=150, R_threshold=70, D=p, D_threshold=p)
         ϵ = max(ϵ_t, ϵ_v, ϵ_c)
         open("results_params.txt", "a") do io
-            write(io, "Values for D : $p || ϵ : $ϵ. With ϵ_t : $ϵ_t, ϵ_v : $ϵ_v, ϵ_c : $ϵ_c\n")
+            write(io, "Values for D_thr : $p || ϵ : $ϵ. With ϵ_t : $ϵ_t, ϵ_v : $ϵ_v, ϵ_c : $ϵ_c\n")
         end
         println("D done")
     end

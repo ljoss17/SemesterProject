@@ -1,6 +1,6 @@
 include("contagion.jl")
 
-fp = pwd()*"/Contagion/"
+fp = pwd()*"\\Contagion\\"
 
 function plot_contagion_totality_E(;N::Int64=1024, f::Float64=0.1, E_thr::Int64=200, D::Int64=300, D_thr::Int64=200, R::Int64=300, R_thr::Int64=200, minE::Int64=200, maxE::Int64=400, step::Int64=10)
     if minE > maxE
@@ -616,12 +616,13 @@ function plot_totality_gammas(;N::Int64=1024, r::Int64=200, r_t::Int64=60)
         p = plot(
             [1:C+1],
             y,
+            ylims=[0,1],
             title=string("Gamma distribtuion, round : $k"),
             xlabel="gamma",
             ylabel="p[γ]",
             legend=false
         )
-        savefig(p, fp*"/gammas/totality_K_($k)")
+        savefig(p, fp*"gammas_totality_K_($k)")
     end
 
 end

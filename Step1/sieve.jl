@@ -14,10 +14,18 @@ end
 function sum_binomial(from, to, n, p)::Float128
     # Sum binomial distribution using kahan summation algorithm.
     val::Array{Float128, 1} = zeros(to-from+1)
-    for i in from:to
-        val[i-from+1] = binomial_k(n, p, i)
+    # Special case if from is 0, since Julia arrays start at 1.
+    if from == 0
+        for i in from+1:to+1
+            val[i] = binomial_k(n, p, i-1)
+        end
+        res::Float128 = kahan_summation(val)
+    else
+        for i in from:to
+            val[i-from+1] = binomial_k(n, p, i)
+        end
+        res::Float128 = kahan_summation(val)
     end
-    res::Float128 = kahan_summation(val)
     return res
 end
 
@@ -166,7 +174,7 @@ function phi_plus(C, f, E, E_threshold, N_barH)::Float128
     P_ANhm1_H::Float128, P_ANhm1_H_Fπ::Array{Float128, 1} = deliverM_after_kProcesses(E, E_threshold, N_barH-1, C, f)
     denom::Float128 = P_ANh_H-P_ANhm1_H
     if denom == 0
-        #println("ERROR in + : denom is 0")
+        # When the bound can't be computed, we set it to 1, since it is the maximum for a probability
         return 0.0
     end
     res_vals::Array{Float128, 1} = zeros(E_threshold)
@@ -176,7 +184,16 @@ function phi_plus(C, f, E, E_threshold, N_barH)::Float128
         tmp::Float128 = P_ANh_H_Fπ[F_barPi+1] - P_ANhm1_H_Fπ[F_barPi+1]
         res_vals[F_barPi+1] = simple_phi(F_barPi, N_barH, C, E, E_threshold)*tmp
     end
-    res::Float128 = kahan_summation(res_vals)/denom
+    num::Float128 = kahan_summation(res_vals)
+    # If the numerator is 0, then P[F_π^+ | N_H] = 0
+    # But if the numerator is not 0, and the denominator is, since computing this is not possible
+    # we set the probability bound to its maximum, 1.0
+    if num == 0.0
+        return 0.0
+    elseif denom == 0.0
+        return 1.0
+    end
+    res::Float128 = num/denom
     return check_rounding(res)
 end
 
@@ -196,7 +213,16 @@ function phi_minus(C, f, E, E_threshold, N_barH)::Float128
         tmp::Float128 = pf-P_ANhm1_H_Fπ[F_barPi+1]
         vals[F_barPi+1] = simple_phi(F_barPi, N_barH, C, E, E_threshold)*tmp
     end
-    res::Float128 = kahan_summation(vals)/denom
+    num::Float128 = kahan_summation(vals)
+    # If the numerator is 0, then P[F_π^+ | N_H] = 0
+    # But if the numerator is not 0, and the denominator is, since computing this is not possible
+    # we set the probability bound to its maximum, 1.0
+    if num == 0.0
+        return 0.0
+    elseif denom == 0.0
+        return 1.0
+    end
+    res::Float128 = num/denom
     return check_rounding(res)
 end
 
