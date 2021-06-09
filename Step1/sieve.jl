@@ -15,16 +15,17 @@ function sum_binomial(from, to, n, p)::Float128
     # Sum binomial distribution using kahan summation algorithm.
     val::Array{Float128, 1} = zeros(to-from+1)
     # Special case if from is 0, since Julia arrays start at 1.
+    res::Float128 = 0.0
     if from == 0
         for i in from+1:to+1
             val[i] = binomial_k(n, p, i-1)
         end
-        res::Float128 = kahan_summation(val)
+        res = kahan_summation(val)
     else
         for i in from:to
             val[i-from+1] = binomial_k(n, p, i)
         end
-        res::Float128 = kahan_summation(val)
+        res = kahan_summation(val)
     end
     return res
 end
