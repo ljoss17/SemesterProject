@@ -27,6 +27,7 @@ function sum_binomial(from, to, n, p)::Float128
         end
         res = kahan_summation(val)
     end
+    # Binomial distribution can't be bigger than 1
     return res
 end
 
@@ -53,32 +54,6 @@ function binomial_k(n, p, k)::Float128
     return exp(res)
 end
 
-function binomial_k_taylor(n, p, k)::Float128
-    # Compute probability of having value k in a
-    # binomial distribution Bin[n, p]
-
-    # If probability is 1 or 0, only two possible cases
-
-    shift_taylor(a) = a+Taylor1(typeof(a), 5)
-    t = shift_taylor(0.0)
-    if p == 1
-        if k == n
-            return 1.0
-        else
-            return 0.0
-        end
-    end
-    if p == 0
-        if k == 0
-            return 1.0
-        else
-            return 0.0
-        end
-    end
-    res::Float128 = log_binomial_coefficient(n, k) + log(p)*k + evaluate(log(1-t), p)*(n-k)
-    return exp(res)
-end
-
 function sieve_total_validity(G, E, E_threshold, N::Int64=1024, f::Float64=0.1)::Float128
     C = floor(Int, (1-f)*N)
     ϵ_t::Float128 = murmur_totality(G, N, f)
@@ -95,13 +70,13 @@ function alpha_function(M, F_barPi, C, E, E_threshold)::Float128
     else
         α = ((exp(1)*(E-F_barPi)*(M/C))/(E_threshold-F_barPi))^(E_threshold-F_barPi)
     end
-    return check_rounding(α)
+    return α
 end
 
 function beta_function(M, F_barPi, C, E)::Float128
     # β(M, F_barPi) as described at page 95.
     β::Float128 = exp(-(E-F_barPi)*(M/C))
-    return check_rounding(β)
+    return β
 end
 
 function simple_psi_two_params(M, F_barPi, C, E, E_threshold)::Float128
@@ -115,7 +90,7 @@ function simple_psi_two_params(M, F_barPi, C, E, E_threshold)::Float128
     if (M/C) <= psi_condition
         ψ = alpha_function(M, F_barPi, C, E, E_threshold)*beta_function(M, F_barPi, C, E)
     end
-    return check_rounding(ψ)
+    return ψ
 end
 
 function simple_psi(L, C, E, E_threshold, f)::Float128
@@ -126,7 +101,7 @@ function simple_psi(L, C, E, E_threshold, f)::Float128
         vals[F_barPi+1] = (1 - (1-simple_psi_two_params(L, F_barPi, C, E, E_threshold))^floor(Int, C/L) * (1-simple_psi_two_params(mod(C, L), F_barPi, C, E, E_threshold)))*binomial_k(E, f, F_barPi)
     end
     ψ::Float128 = kahan_summation(vals)
-    return check_rounding(ψ)
+    return ψ
 end
 
 function psi_tilde(L, C, E, E_threshold, f)::Float128
@@ -140,13 +115,13 @@ function psi_tilde(L, C, E, E_threshold, f)::Float128
     else
         ψ_tilde = (1-(1-simple_psi(L, C, E, E_threshold, f))^C) - (1-(1-simple_psi(L-1, C, E, E_threshold, f))^C)
     end
-    return check_rounding(ψ_tilde)
+    return ψ_tilde
 end
 
 function deliverM_after_kProcesses_given_byzantinePopulation(E, E_threshold, F_barPi, k, C, f)::Float128
     # P[A^k_m[π] | F_π]
     res::Float128 = sum_binomial(E_threshold-F_barPi, E-F_barPi, E-F_barPi, k/C)
-    return check_rounding(res)
+    return res
 end
 
 function deliverM_after_kProcesses(E, E_threshold, k, C, f)::Tuple{Float128, Array{Float128, 1}}
@@ -158,7 +133,7 @@ function deliverM_after_kProcesses(E, E_threshold, k, C, f)::Tuple{Float128, Arr
         vals[F_barPi+1] = pf*P_ANhk_Fπ
     end
     res::Float128 = kahan_summation(vals)
-    return check_rounding(res), vals
+    return res, vals
 end
 
 function phi_plus(C, f, E, E_threshold, N_barH)::Float128
@@ -187,7 +162,7 @@ function phi_plus(C, f, E, E_threshold, N_barH)::Float128
         return 1.0
     end
     res::Float128 = num/denom
-    return check_rounding(res)
+    return res
 end
 
 function phi_minus(C, f, E, E_threshold, N_barH)::Float128
@@ -216,7 +191,7 @@ function phi_minus(C, f, E, E_threshold, N_barH)::Float128
         return 1.0
     end
     res::Float128 = num/denom
-    return check_rounding(res)
+    return res
 end
 
 function simple_phi(F_barPi, N_barHbar, C, E, E_threshold)::Float128
@@ -234,7 +209,7 @@ function simple_phi(F_barPi, N_barHbar, C, E, E_threshold)::Float128
     if (C-N_barHbar)/C <= phi_condition
         ϕ = alpha_function(C-N_barHbar, F_barPi, C, E, E_threshold)*beta_function(C-N_barHbar, F_barPi, C, E)
     end
-    return check_rounding(ϕ)
+    return ϕ
 end
 
 function phi_tilde(N_barH, C, E, E_threshold, f)::Float128
@@ -243,7 +218,7 @@ function phi_tilde(N_barH, C, E, E_threshold, f)::Float128
     ϕ_plus::Float128 = phi_plus(C, f, E, E_threshold, N_barH)
     ϕ_minus::Float128 = phi_minus(C, f, E, E_threshold, N_barH)
     ϕ::Float128 = (1 - (1 - ϕ_plus)*(1-ϕ_minus)^(C-1))
-    return check_rounding(ϕ)
+    return ϕ
 end
 
 function epsilon_p(C, f, E, E_threshold)::Float128

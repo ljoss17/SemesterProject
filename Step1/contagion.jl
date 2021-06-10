@@ -14,7 +14,7 @@ function contagion_validity(G, E, E_threshold, D, D_threshold, N::Int64=1024, f:
     ϵ_o::Float128 = sum_binomial(D-D_threshold+1, D, D, f)
     ϵ_pcb::Float128 = sieve_total_validity(G, E, E_threshold, N, f)
     ϵ_v::Float128 = ϵ_pcb + (1 - ϵ_pcb)*ϵ_o
-    return ϵ_v
+    return check_rounding(ϵ_v)
 end
 
 function compute_infected_round_r_only(R, R_threshold, Nbar_i, Ubar_i, l, N)::Float128
@@ -34,7 +34,7 @@ function compute_infected_round_r_only(R, R_threshold, Nbar_i, Ubar_i, l, N)::Fl
         vals[vim1] = (p_Vim1_nWi*p_Vi_Vim1_nWi)
     end
     res::Float128 = kahan_summation(vals)
-    return check_rounding(res)
+    return res
 end
 
 function compute_nextStep(R, R_threshold, l, N, Nbar_r_i, Ubar_i, Nbar_next, Ubar_next)::Float128
@@ -42,7 +42,7 @@ function compute_nextStep(R, R_threshold, l, N, Nbar_r_i, Ubar_i, Nbar_next, Uba
     # P[N_i+1, U_i+1 | N_i, U_i]
     pw::Float128 = pwi.prob[Nbar_r_i+1, Ubar_i+1]
     next::Float128 = binomial_k(N-Nbar_r_i, pw, Ubar_next)
-    return check_rounding(next)
+    return next
 end
 
 function compute_all_steps(N, l, R, R_threshold, ni_min, ni_max)
@@ -258,7 +258,7 @@ function any_enough_ready(N, C, D, D_threshold, R, R_threshold)::Float128
         vals[γ_barPlus-N+C+1] = (1-(1-specific_enough_ready(D, D_threshold, γ_barPlus, N))^C)*p_g
     end
     μ::Float128 = kahan_summation(vals)
-    return check_rounding(μ)
+    return μ
 end
 
 function contagion_consistency(E, E_threshold, D, D_threshold, R, R_threshold, N::Int64=1024, f::Float64=0.1)::Float128
@@ -266,7 +266,7 @@ function contagion_consistency(E, E_threshold, D, D_threshold, R, R_threshold, N
     μ::Float128 = any_enough_ready(N, C, D, D_threshold, R, R_threshold)
     ϵ_pcb::Float128 = sieve_consistency(E, E_threshold, N, f)
     ϵ_c::Float128 = ϵ_pcb + (1 - ϵ_pcb)*μ
-    return ϵ_c
+    return check_rounding(ϵ_c)
 end
 
 function alpha_minus(γ, N, D, D_threshold)::Float128
@@ -326,5 +326,5 @@ function contagion_totality(E, E_threshold, D, D_threshold, R, R_threshold, N::I
     μ::Float128 = any_enough_ready(N, C, D, D_threshold, R, R_threshold)
     ϵ_b::Float128 = epsilon_b(N, f, C, D, D_threshold, R, R_threshold)
     ϵ_t::Float128 = ϵ_pcb + μ + ϵ_b
-    return ϵ_t
+    return check_rounding(ϵ_t)
 end

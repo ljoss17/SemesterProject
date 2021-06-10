@@ -70,7 +70,7 @@ function murmur_totality(G, N::Int64=524288, f::Float64=0.2)::Float128
         vals[k] = log_sum_body(k, P, C)
     end
     ϵ::Float128 = kahan_summation(vals)
-    return ϵ
+    return check_rounding(ϵ)
 end
 
 function run_murmur(G, N::Int64=524290, f::Float64=0.2)

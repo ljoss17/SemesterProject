@@ -18,7 +18,7 @@ function optimize_contagion(N::Int64=1024)
         v = contagion_validity(G, E, E_thr, D, d_thr, N, f)
         c = contagion_consistency(E, E_thr, D, d_thr, R, R_thr, N, f)
         ϵ = max(t, v, c)
-        println("d_thr : $d_thr, ϵ : $ϵ. t : $t, v : $t, c : $c")
+        println("d_thr : $d_thr, ϵ : $ϵ. t : $t, v : $v, c : $c")
         if ((t+v+c)/3 < ϵ)
             break
         end
@@ -38,7 +38,7 @@ function optimize_contagion(N::Int64=1024)
         v = contagion_validity(G, E, E_thr, D, d_thr, N, f)
         c = contagion_consistency(E, E_thr, D, d_thr, R, r_thr, N, f)
         ϵ = max(t, v, c)
-        println("r_thr : $r_thr, ϵ : $ϵ. t : $t, v : $t, c : $c")
+        println("r_thr : $r_thr, ϵ : $ϵ. t : $t, v : $v, c : $c")
         if ((t+v+c)/3 < ϵ)
             break
         end
@@ -67,7 +67,7 @@ function optimize_contagion_R(N::Int64=1024)
         v = contagion_validity(G, E, E_thr, D, d_thr, N, f)
         c = contagion_consistency(E, E_thr, D, d_thr, R, r_thr, N, f)
         ϵ = max(t, v, c)
-        println("r_thr : $r_thr, ϵ : $ϵ. t : $t, v : $t, c : $c")
+        println("r_thr : $r_thr, ϵ : $ϵ. t : $t, v : $v, c : $c")
         if ((t+v+c)/3 < ϵ)
             break
         end
