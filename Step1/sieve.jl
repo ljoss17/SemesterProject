@@ -79,18 +79,10 @@ function binomial_k_taylor(n, p, k)::Float128
     return exp(res)
 end
 
-
-function byzantine_echo_threshold(E, E_threshold, f)::Float128
-    # Compute probability of having more than E-E_threshold Byzantine
-    # processes in the sampling set E.
-    ϵ_o::Float128 = sum_binomial(E-E_threshold+1, E, E, f)
-    return check_rounding(ϵ_o)
-end
-
 function sieve_total_validity(G, E, E_threshold, N::Int64=1024, f::Float64=0.1)::Float128
     C = floor(Int, (1-f)*N)
     ϵ_t::Float128 = murmur_totality(G, N, f)
-    ϵ_o::Float128 = byzantine_echo_threshold(E, E_threshold, f)
+    ϵ_o::Float128 = sum_binomial(E-E_threshold+1, E, E, f)
     ϵ_v::Float128 = ϵ_t + (1-ϵ_t)*(1-(1-ϵ_o)^C)
     return check_rounding(ϵ_v)
 end

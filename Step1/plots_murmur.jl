@@ -1,4 +1,10 @@
-fp = pwd()*"/Murmur/"
+include("murmur.jl")
+
+if Sys.iswindows()
+    fp = pwd()*"\\Murmur\\"
+else
+    fp = pwd()*"/Murmur/"
+end
 
 function plot_murmur_G(;N::Int64=102400, f::Float64=0.1, minG::Int64=300, maxG::Int64=1000, step::Int64=1)
     it::Int64 = ((maxG-minG)/step)+1

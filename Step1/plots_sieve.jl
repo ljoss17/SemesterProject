@@ -1,4 +1,10 @@
-fp = pwd()*"/Sieve/"
+include("sieve.jl")
+
+if Sys.iswindows()
+    fp = pwd()*"\\Sieve\\"
+else
+    fp = pwd()*"/Sieve/"
+end
 
 function plot_sieve_totalvalidity_E(;N::Int64=1024, f::Float64=0.1, G::Int64=300, E_thr::Int64=200, minE::Int64=200, maxE::Int64=400, step::Int64=10)
     if minE > maxE
@@ -144,12 +150,12 @@ function plot_sieve()
     step = 1
     for p in 80:10:130
         println("p : $p")
-        @time plot_sieve_totalvalidity_E(N=N, G=G, E_thr=p, minE=105, maxE=150, step=1)
-        #@time plot_sieve_consistency_E(N=N, E_thr=p, minE=100, maxE=400, step=10)
+        plot_sieve_totalvalidity_E(N=N, G=G, E_thr=p, minE=105, maxE=150, step=1)
+        plot_sieve_consistency_E(N=N, E_thr=p, minE=100, maxE=400, step=10)
     end
     for p in 100:10:130
         println("p : $p")
-        @time plot_sieve_totalvalidity_E_thr(N=N, G=G, E=p, minE_thr=50, maxE_thr=75, step=1)
-        #@time plot_sieve_sieve_consistency_E_thr(N=N, E=p, minE_thr=50, maxE_thr=min(100, p), step=10)
+        plot_sieve_totalvalidity_E_thr(N=N, G=G, E=p, minE_thr=50, maxE_thr=75, step=1)
+        plot_sieve_sieve_consistency_E_thr(N=N, E=p, minE_thr=50, maxE_thr=min(100, p), step=10)
     end
 end

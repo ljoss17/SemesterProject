@@ -11,7 +11,7 @@ end
 pwi = InfectionProbabilities(0, 0.0, 0, 0, zeros(1,1))
 
 function contagion_validity(G, E, E_threshold, D, D_threshold, N::Int64=1024, f::Float64=0.1)::Float128
-    ϵ_o::Float128 = byzantine_echo_threshold(D, D_threshold, f)
+    ϵ_o::Float128 = sum_binomial(D-D_threshold+1, D, D, f)
     ϵ_pcb::Float128 = sieve_total_validity(G, E, E_threshold, N, f)
     ϵ_v::Float128 = ϵ_pcb + (1 - ϵ_pcb)*ϵ_o
     return ϵ_v
