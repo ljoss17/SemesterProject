@@ -38,6 +38,7 @@ function plot_sieve_totalvalidity_E(;N::Int64=1024, f::Float64=0.1, G::Int64=300
         legend=false,
     )
     savefig(p, fp*"sieve_totalvalidity_changeE_N($N)_f($f)_G($G)_E_thr($E_thr)_E_from($minE)_to($maxE)_step($step).png")
+    return x, y
 end
 
 function plot_sieve_totalvalidity_E_thr(;N::Int64=1024, f::Float64=0.1, G::Int64=300, E::Int64=400, minE_thr::Int64=200, maxE_thr::Int64=400, step::Int64=10)
@@ -72,6 +73,7 @@ function plot_sieve_totalvalidity_E_thr(;N::Int64=1024, f::Float64=0.1, G::Int64
         legend=false,
     )
     savefig(p, fp*"sieve_totalvalidity_changeE-thr_N($N)_f($f)_G($G)_E($E)_Ethr_from($minE_thr)_to($maxE_thr)_step($step).png")
+    return x, y
 end
 
 function plot_sieve_consistency_E(;N::Int64=1024, f::Float64=0.1, E_thr::Int64=200, minE::Int64=200, maxE::Int64=400, step::Int64=10)
@@ -106,6 +108,7 @@ function plot_sieve_consistency_E(;N::Int64=1024, f::Float64=0.1, E_thr::Int64=2
         legend=false,
     )
     savefig(p, fp*"sieve_consistency_changeE_N($N)_f($f)_E_thr($E_thr)_E_from($minE)_to($maxE)_step($step).png")
+    return x, y
 end
 
 function plot_sieve_sieve_consistency_E_thr(;N::Int64=1024, f::Float64=0.1, E::Int64=400, minE_thr::Int64=200, maxE_thr::Int64=400, step::Int64=10)
@@ -140,6 +143,7 @@ function plot_sieve_sieve_consistency_E_thr(;N::Int64=1024, f::Float64=0.1, E::I
         legend=false,
     )
     savefig(p, fp*"sieve_consistency_changeE-thr_N($N)_f($f)_E($E)_Ethr_from($minE_thr)_to($maxE_thr)_step($step).png")
+    return x, y
 end
 
 function plot_sieve()
@@ -148,14 +152,28 @@ function plot_sieve()
     E_thr = 100
     G = 100
     step = 1
-    for p in 80:10:130
+    for p in 100:20:300
         println("p : $p")
-        plot_sieve_totalvalidity_E(N=N, G=G, E_thr=p, minE=105, maxE=150, step=1)
-        plot_sieve_consistency_E(N=N, E_thr=p, minE=100, maxE=400, step=10)
-    end
-    for p in 100:10:130
-        println("p : $p")
-        plot_sieve_totalvalidity_E_thr(N=N, G=G, E=p, minE_thr=50, maxE_thr=75, step=1)
-        plot_sieve_sieve_consistency_E_thr(N=N, E=p, minE_thr=50, maxE_thr=min(100, p), step=10)
+        x1, y1 = plot_sieve_totalvalidity_E_thr(N=N, G=G, E=p, minE_thr=p-80, maxE_thr=p, step=5)
+        x2, y2 = plot_sieve_sieve_consistency_E_thr(N=N, E=p, minE_thr=p-80, maxE_thr=p, step=5)
+        plot(
+            x1,
+            y1,
+            yscale=:log10,
+            title=string(" E : ", E),
+            xlabel="E_thr",
+            ylabel="ϵ-consistency for Sieve",
+            labels="Total-validity"
+        )
+        plot!(
+            x2,
+            y2,
+            yscale=:log10,
+            title=string(" E : ", E),
+            xlabel="E_thr",
+            ylabel="ϵ-consistency for Sieve",
+            labels="Consistency"
+        )
+        savefig(fp*"sieve_all_p($p).png")
     end
 end
