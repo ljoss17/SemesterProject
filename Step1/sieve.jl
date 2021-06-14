@@ -97,11 +97,11 @@ function simple_psi(L, C, E, E_threshold, f)::Float128
     # Compute probability that at least L processes pb.Deliver a message m,
     # before π delivers m.
     vals::Array{Float128, 1} = zeros(E_threshold+1)
-    for F_barPi in 0:E_threshold
+    for F_barPi in 0:E_threshold-1
         vals[F_barPi+1] = (1 - (1-simple_psi_two_params(L, F_barPi, C, E, E_threshold))^floor(Int, C/L) * (1-simple_psi_two_params(mod(C, L), F_barPi, C, E, E_threshold)))*binomial_k(E, f, F_barPi)
     end
     ψ::Float128 = kahan_summation(vals)
-    return ψ
+    return check_rounding(ψ)
 end
 
 function psi_tilde(L, C, E, E_threshold, f)::Float128
@@ -143,12 +143,10 @@ function phi_plus(C, f, E, E_threshold, N_barH)::Float128
     denom::Float128 = P_ANh_H-P_ANhm1_H
     if denom == 0
         # When the bound can't be computed, we set it to 1, since it is the maximum for a probability
-        return 0.0
+        return 1.0
     end
     res_vals::Array{Float128, 1} = zeros(E_threshold)
     for F_barPi in 0:E_threshold-1
-        #pf::Float128 = binomial_k(E, f, F_barPi)
-        #tmp::Float128 = (deliverM_after_kProcesses_given_byzantinePopulation(E, E_threshold, F_barPi, N_barH, C, f) - deliverM_after_kProcesses_given_byzantinePopulation(E, E_threshold, F_barPi, N_barH-1, C, f))*pf
         tmp::Float128 = P_ANh_H_Fπ[F_barPi+1] - P_ANhm1_H_Fπ[F_barPi+1]
         res_vals[F_barPi+1] = simple_phi(F_barPi, N_barH, C, E, E_threshold)*tmp
     end
@@ -158,8 +156,6 @@ function phi_plus(C, f, E, E_threshold, N_barH)::Float128
     # we set the probability bound to its maximum, 1.0
     if num == 0.0
         return 0.0
-    elseif denom == 0.0
-        return 1.0
     end
     res::Float128 = num/denom
     return res
@@ -171,13 +167,12 @@ function phi_minus(C, f, E, E_threshold, N_barH)::Float128
     denom::Float128 = 1-P_ANhm1_H
     if denom == 0
         #println("ERROR in - : denom is 0")
-        return 0.0
+        return 1.0
     end
     vals::Array{Float128, 1} = zeros(E_threshold)
     # Consider non poisoned systems
     for F_barPi in 0:E_threshold-1
         pf::Float128 = binomial_k(E, f, F_barPi)
-        #tmp::Float128 = (1-deliverM_after_kProcesses_given_byzantinePopulation(E, E_threshold, F_barPi, N_barH-1, C, f))*pf
         tmp::Float128 = pf-P_ANhm1_H_Fπ[F_barPi+1]
         vals[F_barPi+1] = simple_phi(F_barPi, N_barH, C, E, E_threshold)*tmp
     end
@@ -187,8 +182,6 @@ function phi_minus(C, f, E, E_threshold, N_barH)::Float128
     # we set the probability bound to its maximum, 1.0
     if num == 0.0
         return 0.0
-    elseif denom == 0.0
-        return 1.0
     end
     res::Float128 = num/denom
     return res
