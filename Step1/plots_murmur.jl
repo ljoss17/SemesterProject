@@ -10,11 +10,10 @@ function plot_murmur_G(;N::Int64=102400, f::Float64=0.1, minG::Int64=300, maxG::
     it::Int64 = ((maxG-minG)/step)+1
     x::Array{Int64, 1} = zeros(it)
     y::Array{Float128, 1} = zeros(it)
-    f2::Float128 = Float128(f)
     ind = 1
     for g in minG:step:maxG
         x[ind] = g
-        y[ind] = murmur_totality(g, N, f2)
+        y[ind] = murmur_totality(g, N, f)
         ind = ind+1
     end
     p = plot(
