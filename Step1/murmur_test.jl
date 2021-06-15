@@ -23,6 +23,11 @@ end
     @test abs(log_sum_body(5, 0.51, 9)-0.0000802217525874537526203420827542224126)/log_sum_body(5, 0.51, 9) < 1e-14
 end
 
+@testset "log_binomial_coefficient" begin
+    @test abs(log_binomial_coefficient(4,2)-log(6))/log_binomial_coefficient(4,2) < 1e-16
+        @test abs(log_binomial_coefficient(20,4)-log(4845))/log_binomial_coefficient(20,4) < 1e-16
+end
+
 @testset "murmur_totality" begin
     #@test  == 1.6677181699666569
     @test abs(murmur_totality(3, 10, 0.1)-0.0319487779404282722563866057295629288252) < 1e-15
