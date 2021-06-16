@@ -37,6 +37,7 @@ function plot_contagion_totality_R(;N::Int64=1024, f::Float64=0.1, E::Int64=300,
         legend=false,
     )
     savefig(p, fp*"contagion_totality_changeR_N($N)_f($f)_E($E)_E_thr($E_thr)_R_thr($R_thr)_D($D)_D_thr($D_thr).png")
+    return x, y
 end
 
 function plot_contagion_totality_D(;N::Int64=1024, f::Float64=0.1, E::Int64=300, E_thr::Int64=200, D_thr::Int64=200, R::Int64=300, R_thr::Int64=200, minD::Int64=200, maxD::Int64=400, step::Int64=10)
@@ -70,6 +71,7 @@ function plot_contagion_totality_D(;N::Int64=1024, f::Float64=0.1, E::Int64=300,
         legend=false,
     )
     savefig(p, fp*"contagion_totality_changeD_N($N)_f($f)_E($E)_E_thr($E_thr)_R($R)_R_thr($R_thr)_D_thr($D_thr).png")
+    return x, y
 end
 
 function plot_contagion_totality_R_thr(;N::Int64=1024, f::Float64=0.1, E::Int64=400, E_thr::Int64=200, D::Int64=400, D_thr::Int64=200, R::Int64=400, minR_thr::Int64=200, maxR_thr::Int64=400, step::Int64=10)
@@ -103,6 +105,7 @@ function plot_contagion_totality_R_thr(;N::Int64=1024, f::Float64=0.1, E::Int64=
         legend=false,
     )
     savefig(p, fp*"contagion_totality_changeR-thr_N($N)_f($f)_E($E)_E_thr($E_thr)_R($R)_D($D)_D_thr($D_thr).png")
+    return x, y
 end
 
 function plot_contagion_totality_D_thr(;N::Int64=1024, f::Float64=0.1, E::Int64=400, E_thr::Int64=200, D::Int64=400, R::Int64=400, R_thr::Int64=200, minD_thr::Int64=200, maxD_thr::Int64=400, step::Int64=10)
@@ -136,6 +139,7 @@ function plot_contagion_totality_D_thr(;N::Int64=1024, f::Float64=0.1, E::Int64=
         legend=false,
     )
     savefig(p, fp*"contagion_totality_changeD-thr_N($N)_f($f)_E($E)_E_thr($E_thr)_R($R)_R_thr($R_thr)_D($D).png")
+    return x, y
 end
 
 function plot_contagion_validity_D(;N::Int64=1024, f::Float64=0.1, G::Int64=300, E::Int64=300, E_thr::Int64=200, D_thr::Int64=200, minD::Int64=200, maxD::Int64=400, step::Int64=10)
@@ -169,6 +173,7 @@ function plot_contagion_validity_D(;N::Int64=1024, f::Float64=0.1, G::Int64=300,
         legend=false,
     )
     savefig(p, fp*"contagion_validity_changeD_N($N)_f($f)_G($G)_E($E)_E_thr($E_thr)_D_thr($D_thr).png")
+    return x, y
 end
 
 function plot_contagion_validity_D_thr(;N::Int64=1024, f::Float64=0.1, G::Int64=300, E::Int64=400, E_thr::Int64=200, D::Int64=400, minD_thr::Int64=200, maxD_thr::Int64=400, step::Int64=10)
@@ -202,6 +207,7 @@ function plot_contagion_validity_D_thr(;N::Int64=1024, f::Float64=0.1, G::Int64=
         legend=false,
     )
     savefig(p, fp*"contagion_validity_changeD-thr_N($N)_f($f)_G($G)_E($E)_E_thr($E_thr)_D($D).png")
+    return x, y
 end
 
 function plot_contagion_consistency_R(;N::Int64=1024, f::Float64=0.1, E::Int64=300, E_thr::Int64=200, D::Int64=300, D_thr::Int64=200, R_thr::Int64=200, minR::Int64=200, maxR::Int64=400, step::Int64=10)
@@ -236,6 +242,7 @@ function plot_contagion_consistency_R(;N::Int64=1024, f::Float64=0.1, E::Int64=3
         legend=false,
     )
     savefig(p, fp*"contagion_consistency_changeR_N($N)_f($f)_E($E)_E_thr($E_thr)_R_thr($R_thr)_D($D)_D_thr($D_thr).png")
+    return x, y
 end
 
 function plot_contagion_consistency_D(;N::Int64=1024, f::Float64=0.1, E::Int64=300, E_thr::Int64=200, D_thr::Int64=200, R::Int64=300, R_thr::Int64=200, minD::Int64=200, maxD::Int64=400, step::Int64=10)
@@ -269,6 +276,7 @@ function plot_contagion_consistency_D(;N::Int64=1024, f::Float64=0.1, E::Int64=3
         legend=false,
     )
     savefig(p, fp*"contagion_consistency_changeD_N($N)_f($f)_E($E)_E_thr($E_thr)_R($R)_R_thr($R_thr)_D_thr($D_thr).png")
+    return x, y
 end
 
 function plot_contagion_consistency_R_thr(;N::Int64=1024, f::Float64=0.1, E::Int64=400, E_thr::Int64=200, D::Int64=400, D_thr::Int64=200, R::Int64=400, minR_thr::Int64=200, maxR_thr::Int64=400, step::Int64=10)
@@ -302,6 +310,7 @@ function plot_contagion_consistency_R_thr(;N::Int64=1024, f::Float64=0.1, E::Int
         legend=false,
     )
     savefig(p, fp*"contagion_consistency_changeR-thr_N($N)_f($f)_E($E)_E_thr($E_thr)_R($R)_D($D)_D_thr($D_thr).png")
+    return x, y
 end
 
 function plot_contagion_consistency_D_thr(;N::Int64=1024, f::Float64=0.1, E::Int64=400, E_thr::Int64=200, D::Int64=400, R::Int64=400, R_thr::Int64=200, minD_thr::Int64=200, maxD_thr::Int64=400, step::Int64=10)
@@ -335,6 +344,7 @@ function plot_contagion_consistency_D_thr(;N::Int64=1024, f::Float64=0.1, E::Int
         legend=false,
     )
     savefig(p, fp*"contagion_consistency_changeD-thr_N($N)_f($f)_E($E)_E_thr($E_thr)_R($R)_R_thr($R_thr)_D($D).png")
+    return x, y
 end
 
 function plot_gamma_distribution(;N::Int64=60, R::Int64=30, R_t::Int64=12, f::Float64=0.1, minX::Int64=115, maxX::Int64=128)
@@ -378,5 +388,41 @@ function plot_totality_gammas(;N::Int64=1024, r::Int64=200, r_t::Int64=60)
         )
         savefig(p, fp*"gammas_totality_K_($k)")
     end
+end
 
+function plot_contagion_allD()
+    for p in 40:10:80
+        x1, y1 = plot_contagion_consistency_D_thr(E=250, E_thr=197, D=200, R=200, R_thr=p, minD_thr=p, maxD_thr=p+120, step=1)
+        x2, y2 = plot_contagion_totality_D_thr(E=250, E_thr=197, D=200, R=200, R_thr=p, minD_thr=p, maxD_thr=p+120, step=1)
+        x3, y3 = plot_contagion_validity_D_thr(G=11, E=250, E_thr=197, D=200, minD_thr=p, maxD_thr=p+120, step=1)
+        plot(
+            x1,
+            y1,
+            yscale=:log10,
+            title=string(" D : $D, R : $R"),
+            xlabel="E_thr",
+            ylabel="ϵ-consistency for Sieve",
+            labels="Consistency"
+        )
+        plot!(
+            x2,
+            y2,
+            yscale=:log10,
+            title=string(" D : $D, R : $R"),
+            xlabel="E_thr",
+            ylabel="ϵ-consistency for Sieve",
+            labels="Totality"
+        )
+
+        plot!(
+            x3,
+            y3,
+            yscale=:log10,
+            title=string(" D : $D, R : $R"),
+            xlabel="E_thr",
+            ylabel="ϵ-consistency for Sieve",
+            labels="Validity"
+        )
+        savefig(fp*"sieve_all_p($p).png")
+    end
 end
