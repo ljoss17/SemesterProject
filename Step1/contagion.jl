@@ -284,7 +284,11 @@ function compute_alpha(γ, N, C, D, D_threshold)::Float128
     # processes eventually ready for m.
     α_minus::Float128 = alpha_minus(γ, N, D, D_threshold)
     α_plus::Float128 = alpha_plus(γ, N, C, D, D_threshold)
-    res::Float128 = 1 - (α_minus^C) - (1 - α_plus)^C
+    # α_minus and α_plus are lower bounds, and since α is an upper bounds,
+    # the worst case is when α_minus and/or α_plus are 0.0
+    P_A_γ::Float128 = max(α_minus^C, 0.0)
+    P_Atilde_γ::Float128 = max((1 - α_plus)^C, 0.0)
+    res::Float128 = 1 - P_A_γ - P_Atilde_γ
     return res
 end
 

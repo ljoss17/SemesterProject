@@ -111,7 +111,7 @@ function plot_sieve_consistency_E(;N::Int64=1024, f::Float64=0.1, E_thr::Int64=2
     return x, y
 end
 
-function plot_sieve_sieve_consistency_E_thr(;N::Int64=1024, f::Float64=0.1, E::Int64=400, minE_thr::Int64=200, maxE_thr::Int64=400, step::Int64=10)
+function plot_sieve_consistency_E_thr(;N::Int64=1024, f::Float64=0.1, E::Int64=400, minE_thr::Int64=200, maxE_thr::Int64=400, step::Int64=10)
     if minE_thr > maxE_thr
         println("Error : minimum value of E can't be bigger than max value of E. min E threshold : $minE_thr, max E threshold : $maxE_thr")
         return
@@ -152,11 +152,11 @@ function plot_sieve()
     E_thr = 100
     G = 100
     step = 1
-    for p in 100:20:300
+    for p in 300:20:400
         println("p : $p")
-        x1, y1 = plot_sieve_totalvalidity_E_thr(N=N, G=G, E=p, minE_thr=p-80, maxE_thr=p, step=5)
-        x2, y2 = plot_sieve_sieve_consistency_E_thr(N=N, E=p, minE_thr=p-80, maxE_thr=p, step=5)
-        plot(
+        x1, y1 = plot_sieve_totalvalidity_E_thr(N=N, G=G, E=p, minE_thr=p-100, maxE_thr=p, step=10)
+        x2, y2 = plot_sieve_consistency_E_thr(N=N, E=p, minE_thr=p-100, maxE_thr=p, step=10)
+        pl = plot(
             x1,
             y1,
             yscale=:log10,
@@ -165,15 +165,16 @@ function plot_sieve()
             ylabel="ϵ-consistency for Sieve",
             labels="Total-validity"
         )
-        plot!(
+        pl = plot!(
             x2,
             y2,
             yscale=:log10,
-            title=string(" E : ", E),
+            title=string(" E : ", p),
             xlabel="E_thr",
             ylabel="ϵ-consistency for Sieve",
             labels="Consistency"
         )
-        savefig(fp*"sieve_all_p($p).png")
+        display(pl)
+        savefig(pl, fp*"sieve_all_p($p)_t.png")
     end
 end
