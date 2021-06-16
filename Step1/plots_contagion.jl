@@ -473,7 +473,7 @@ function plot_contagion_allR()
         y3,
         yscale=:log10,
         title=string("N : $n, E : $e, E_thr : $ethr, D : $d, D_thr : $dthr, R : $r"),
-        xlabel="ERthr",
+        xlabel="R_thr",
         ylabel="ϵ-validity for Contagion",
         labels="Validity"
     )
