@@ -148,19 +148,16 @@ end
 
 function plot_sieve()
     N = 1024
-    E = 300
-    E_thr = 100
     G = 100
-    step = 1
     for p in 300:20:400
         println("p : $p")
-        x1, y1 = plot_sieve_totalvalidity_E_thr(N=N, G=G, E=p, minE_thr=p-100, maxE_thr=p, step=10)
-        x2, y2 = plot_sieve_consistency_E_thr(N=N, E=p, minE_thr=p-100, maxE_thr=p, step=10)
+        x1, y1 = plot_sieve_totalvalidity_E_thr(N=N, G=G, E=p, minE_thr=p-100, maxE_thr=p-50, step=1)
+        x2, y2 = plot_sieve_consistency_E_thr(N=N, E=p, minE_thr=p-100, maxE_thr=p-50, step=1)
         pl = plot(
             x1,
             y1,
             yscale=:log10,
-            title=string(" E : ", E),
+            title=string(" E : ", p),
             xlabel="E_thr",
             ylabel="ϵ-consistency for Sieve",
             labels="Total-validity"

@@ -371,9 +371,9 @@ function plot_totality_gammas(;N::Int64=1024, r::Int64=200, r_t::Int64=60)
             [1:C+1],
             y,
             ylims=[0,1],
-            title=string("Gamma distribtuion, round : $k"),
-            xlabel="gamma",
-            ylabel="p[γ]",
+            title=string("N : $C, S : 1, R : $r, K : $k, l : 0.9, R_thr : $r_t"),
+            xlabel="γ+",
+            ylabel="p[γ(N, S, R, K, l, R_thr)=γ+]",
             legend=false
         )
         savefig(p, fp*"gammas_totality_K_($k)")

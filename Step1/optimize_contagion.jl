@@ -1,33 +1,16 @@
 include("contagion.jl")
+include("optimize_sieve.jl")
 
 if Sys.iswindows()
-    fp_sieve = pwd()*"\\Parameters\\Sieve\\"
+    fp_c = pwd()*"\\Parameters\\Contagion\\"
 else
-    fp_sieve = pwd()*"/Parameters/Sieve/"
+    fp_c = pwd()*"/Parameters/Contagion/"
 end
 
-
-if Sys.iswindows()
-    fp = pwd()*"\\Parameters\\Contagion\\"
-else
-    fp = pwd()*"/Parameters/Contagion/"
-end
-
-function optimize_contagion(N::Int64=1024, E::Int64=150, D::Int64=150, R::Int64=150)
-    f = 0.1
-    # If Echo is not optimized for the given N and E, compute it.
-    if isfile(fp_sieve*"sieve_params_N($N)_E($E).csv")
-        file = CSV.File(fp_sieve*"sieve_params_N($N)_E($E).csv")
-    else
-        sieve_find_threshold(E, E, N)
-        file = CSV.File(fp_sieve*"sieve_params_N($N)_E($E).csv")
-    end
-    G = file.G[1]
-    E = file.E[1]
-    E_thr = file.E_thr[1]
-    leftD = 1
-    #rightD = D
-    rightD = 99
+function optimize_contagion_thresholds(N::Int64=1024, f::Float64=0.1, G::Int64=100, E::Int64=150, E_thr::Int64=100, D::Int64=150, R::Int64=150)
+    # Search for the optimal Ready and Deliver threshold, given all the other parameters.
+    leftD::Int64 = 1
+    rightD::Int64 = D
     d_thr::Int64 = 0
     r_thr::Int64 = 0
     best_ϵ::Float128 = 1.0
@@ -45,7 +28,8 @@ function optimize_contagion(N::Int64=1024, E::Int64=150, D::Int64=150, R::Int64=
         d_thr = floor(Int, (leftD+rightD)/2)
         println("leftD : $leftD, rightD : $rightD, d_thr : $d_thr")
         leftR = 1
-        rightR = d_thr
+        # R threshold must be smaller or equal to D_threshold and smaller or equal to R.
+        rightR = min(d_thr, R)
         v = contagion_validity(G, E, E_thr, D, d_thr, N, f)
         while leftR < rightR
             r_thr = floor(Int, (leftR+rightR)/2)
@@ -78,8 +62,7 @@ function optimize_contagion(N::Int64=1024, E::Int64=150, D::Int64=150, R::Int64=
         open("tmp_res_contagion.txt", "a") do io
             write(io, "d_thr : $d_thr, r_thr : $r_thr, ϵ : $ϵ. t : $t, v : $v, c : $c\n\n")
         end
-        println("d_thr : $d_thr, r_thr : $r_thr, ϵ : $ϵ. t : $t, v : $v, c : $c")
-        if ϵ == v || ϵ == t
+        if best_ϵ == best_v || best_ϵ == best_t
             rightD = d_thr-1
         else
             leftD = d_thr+1
@@ -100,5 +83,81 @@ function optimize_contagion(N::Int64=1024, E::Int64=150, D::Int64=150, R::Int64=
         D = [D],
         D_thr = [best_d_thr]
     )
-    CSV.write(fp*"contagion_params_N($N)_E($E)_R($R)_D($D).csv", df)
+    CSV.write(fp_c*"contagion_params_N($N)_G($G)_Ethr($E_thr)_E($E)_R($R)_D($D).csv", df)
+    println("Best for thresholds : $best_ϵ")
+    return best_ϵ, best_r_thr, best_d_thr
+end
+
+function optimize_contagion_thresholds(N::Int64=1024, f::Float64=0.1, bound::Float64=1e-10)
+    # Search for all the optimal parameters for a given system size and security bound.
+    leftD::Int64 = 1
+    rightD::Int64 = N
+    ϵ, e, g, ethr = sieve_get_params(bound*1e-1, N, f)
+    tmp_d::Int64 = 0
+    tmp_r::Int64 = 0
+    leftR::Int64 = 0
+    rightR::Int64 = 0
+    ϵ_d::Float128 = 1.0
+    ϵ_r::Float128 = 1.0
+    best_ϵ::Float128 = 1.0
+    best_d::Int64 = 0
+    intermerdiary_r::Int64 = 0
+    best_r::Int64 = 0
+    best_dthr::Int64 = 0
+    intermerdiary_rthr::Int64 = 0
+    best_rthr::Int64 = 0
+    intermerdiary_dthr::Int64 = 0
+    tmp_avg::Int64 = N
+    while leftD < rightD
+        tmp_d = floor(Int, (leftD+rightD)/2)
+        println("leftD : $leftD, rightD : $rightD, D : $tmp_d")
+        leftR = 1
+        rightR = N
+        ϵ_d = 1.0
+        while leftR < rightR
+            tmp_r = floor(Int, (leftR+rightR)/2)
+            println("leftR : $leftR, rightR : $rightR, R : $tmp_r")
+            ϵ_r, tmp_rthr, tmp_dthr = optimize_contagion_thresholds(N, f, g, e, ethr, tmp_d, tmp_r)
+            if ϵ_r < bound
+                if ϵ_r < ϵ_d
+                    ϵ_d = ϵ_r
+                    intermerdiary_r = tmp_r
+                    intermerdiary_rthr = tmp_rthr
+                    intermerdiary_dthr = tmp_dthr
+                end
+                rightR = tmp_r-1
+            else
+                leftR = tmp_r+1
+            end
+        end
+        if ϵ_d < bound
+            act_avg = ceil(Int, (tmp_d+intermerdiary_r)/2)
+            if act_avg < tmp_avg
+                tmp_avg = act_avg
+                best_ϵ = ϵ_d
+                best_d = tmp_d
+                best_dthr = intermerdiary_dthr
+                best_r = intermerdiary_r
+                best_rthr = intermerdiary_rthr
+            end
+            rightD = tmp_d-1
+        else
+            leftD = tmp_d+1
+        end
+    end
+    avg::Int64 = ceil(Int, (g+e+best_r+best_d)/4)
+    df = DataFrame(
+        ϵ = [best_ϵ],
+        N = [N],
+        f= [f],
+        G = [g],
+        E = [e],
+        E_thr = [ethr],
+        R = [best_r],
+        R_thr = [best_rthr],
+        D = [best_d],
+        D_thr = [best_dthr],
+        avg = [avg]
+    )
+    CSV.write(fp_c*"contagion_params_N($N)_bound($bound).csv", df)
 end
