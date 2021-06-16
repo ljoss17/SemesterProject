@@ -391,38 +391,91 @@ function plot_totality_gammas(;N::Int64=1024, r::Int64=200, r_t::Int64=60)
 end
 
 function plot_contagion_allD()
-    for p in 40:10:80
-        x1, y1 = plot_contagion_consistency_D_thr(E=250, E_thr=197, D=200, R=200, R_thr=p, minD_thr=p, maxD_thr=p+120, step=1)
-        x2, y2 = plot_contagion_totality_D_thr(E=250, E_thr=197, D=200, R=200, R_thr=p, minD_thr=p, maxD_thr=p+120, step=1)
-        x3, y3 = plot_contagion_validity_D_thr(G=11, E=250, E_thr=197, D=200, minD_thr=p, maxD_thr=p+120, step=1)
-        plot(
-            x1,
-            y1,
-            yscale=:log10,
-            title=string(" D : $D, R : $R"),
-            xlabel="E_thr",
-            ylabel="ϵ-consistency for Sieve",
-            labels="Consistency"
-        )
-        plot!(
-            x2,
-            y2,
-            yscale=:log10,
-            title=string(" D : $D, R : $R"),
-            xlabel="E_thr",
-            ylabel="ϵ-consistency for Sieve",
-            labels="Totality"
-        )
+    n = 150
+    g = 7
+    e = 143
+    ethr = 114
+    r = 75
+    rthr = 16
+    d = 62
+    x1, y1 = plot_contagion_consistency_D_thr(N=n, E=e, E_thr=ethr, D=d, R=r, R_thr=rthr, minD_thr=20, maxD_thr=50, step=1)
+    println("consistency done")
+    x2, y2 = plot_contagion_totality_D_thr(N=n, E=e, E_thr=ethr, D=d, R=r, R_thr=rthr, minD_thr=20, maxD_thr=50, step=1)
+    println("totality done")
+    x3, y3 = plot_contagion_validity_D_thr(N=n, G=g, E=e, E_thr=ethr, D=d, minD_thr=20, maxD_thr=50, step=1)
+    println("validity done")
+    plot(
+        x1,
+        y1,
+        yscale=:log10,
+        title=string("N : $n, E : $e, E_thr : $ethr, D : $d, R : $r, R_thr : $rthr"),
+        xlabel="D_thr",
+        ylabel="ϵ-consistency for Contagion",
+        labels="Consistency"
+    )
+    plot!(
+        x2,
+        y2,
+        yscale=:log10,
+        title=string("N : $n, E : $e, E_thr : $ethr, D : $d, R : $r, R_thr : $rthr"),
+        xlabel="D_thr",
+        ylabel="ϵ-totality for Contagion",
+        labels="Totality"
+    )
 
-        plot!(
-            x3,
-            y3,
-            yscale=:log10,
-            title=string(" D : $D, R : $R"),
-            xlabel="E_thr",
-            ylabel="ϵ-consistency for Sieve",
-            labels="Validity"
-        )
-        savefig(fp*"sieve_all_p($p).png")
-    end
+    plot!(
+        x3,
+        y3,
+        yscale=:log10,
+        title=string("N : $n, E : $e, E_thr : $ethr, D : $d, R : $r, R_thr : $rthr"),
+        xlabel="D_thr",
+        ylabel="ϵ-validity for Contagion",
+        labels="Validity"
+    )
+    savefig(fp*"contagion_all_d($d)_from(20)_to(50).png")
+end
+
+function plot_contagion_allR()
+    n = 150
+    g = 7
+    e = 143
+    ethr = 114
+    r = 75
+    d = 62
+    dthr = 31
+    v = contagion_validity(g, e, ethr, d, dthr, n)
+    y3 = ones(6).*v
+    x1, y1 = plot_contagion_consistency_R_thr(N=n, E=e, E_thr=ethr, D=d, D_thr=dthr, R=r, minR_thr=13, maxR_thr=20, step=1)
+    println("consistency done")
+    x2, y2 = plot_contagion_totality_R_thr(N=n, E=e, E_thr=ethr, D=d, D_thr=dthr, R=r, minR_thr=13, maxR_thr=20, step=1)
+    println("totality done")
+    plot(
+        x1,
+        y1,
+        yscale=:log10,
+        title=string("N : $n, E : $e, E_thr : $ethr, D : $d, D_thr : $dthr, R : $r"),
+        xlabel="R_thr",
+        ylabel="ϵ-consistency for Contagion",
+        labels="Consistency"
+    )
+    plot!(
+        x2,
+        y2,
+        yscale=:log10,
+        title=string("N : $n, E : $e, E_thr : $ethr, D : $d, D_thr : $dthr, R : $r"),
+        xlabel="R_thr",
+        ylabel="ϵ-totality for Contagion",
+        labels="Totality"
+    )
+
+    plot!(
+        x1,
+        y3,
+        yscale=:log10,
+        title=string("N : $n, E : $e, E_thr : $ethr, D : $d, D_thr : $dthr, R : $r"),
+        xlabel="ERthr",
+        ylabel="ϵ-validity for Contagion",
+        labels="Validity"
+    )
+    savefig(fp*"contagion_all_r($r)_from(13)_to(20).png")
 end
