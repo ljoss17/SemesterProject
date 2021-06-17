@@ -24,17 +24,26 @@ function optimize_contagion_thresholds(N::Int64=1024, f::Float64=0.1, G::Int64=1
     c::Float128 = 0.0
     v::Float128 = 0.0
     t::Float128 = 0.0
+    next_t_r::Float128 = 1.0
+    next_best_t_d::Float128 = 1.0
     while leftD < rightD
         d_thr = floor(Int, (leftD+rightD)/2)
         println("leftD : $leftD, rightD : $rightD, d_thr : $d_thr")
         leftR = 1
-        # R threshold must be smaller or equal to D_threshold and smaller or equal to R.
-        rightR = min(d_thr, R)
+        # The requirements are R_thr/R < D_thr/D and  R_thr < R.
+        rightR = min(floor(Int, (d_thr*R)/D), R)
         v = contagion_validity(G, E, E_thr, D, d_thr, N, f)
         while leftR < rightR
             r_thr = floor(Int, (leftR+rightR)/2)
             println("leftR : $leftR, rightR : $rightR, r_thr : $r_thr")
             t = contagion_totality(E, E_thr, D, d_thr, R, r_thr, N, f)
+            # If R_thr can be incremented by 1, compute to observe if t is increasing or decreasing
+            # Else force the decreasing of R_thr.
+            if r_thr < R && r_thr < floor(Int, (d_thr*R)/D)
+                next_t_r = contagion_totality(E, E_thr, D, d_thr, R, r_thr+1, N, f)
+            else
+                next_t_r = 1.1
+            end
             c = contagion_consistency(E, E_thr, D, d_thr, R, r_thr, N, f)
             ϵ = max(t, v, c)
             if ϵ < best_ϵ
@@ -46,26 +55,52 @@ function optimize_contagion_thresholds(N::Int64=1024, f::Float64=0.1, G::Int64=1
                 best_r_thr = r_thr
             end
             # If validity is the limiting factor, changing R_thr won't change ϵ
-            # An optimal R_thr for the given D_thr is found.
+            # An optimal R_thr for the given D_thr has been found.
             if v > t && v > c
                 leftR = rightR
                 break
             end
+            # If totality is higher, observe if totality is increasing or decreasing.
             if t > c
-                rightR = r_thr-1
-            elseif c > t
-                leftR = r_thr+1
+                # If totality is increasing, decrease threshold
+                # If totality is decreasing, increase threshold
+                if t > next_t_r
+                    leftR = r_thr+1
+                else
+                    rightR = r_thr-1
+                end
+            # If consistency is higher, increase the threshold
             else
-                break
+                leftR = r_thr+1
             end
         end
         open("tmp_res_contagion.txt", "a") do io
             write(io, "d_thr : $d_thr, r_thr : $r_thr, ϵ : $ϵ. t : $t, v : $v, c : $c\n\n")
         end
-        if best_ϵ == best_v || best_ϵ == best_t
-            rightD = d_thr-1
+        # If totality is the highest bound, check if it's increaseing or decreasing
+        if best_ϵ == best_t
+            # If D_thr can be incremented by 1, check if totality is increasing or decreasing.
+            # Else decrease set the next_best_t_d to decrease D_thr.
+            if d_thr < D
+                next_best_t_d = contagion_totality(E, E_thr, D, d_thr+1, R, r_thr, N, f)
+            else
+                next_best_t_d = 1.1
+            end
+            if best_t < next_best_t_d
+                rightD = d_thr-1
+            else
+                leftD = d_thr+1
+            end
+        # Else check if consistency is higher or lower than validity
         else
-            leftD = d_thr+1
+            if best_c < best_v
+                rightD = d_thr-1
+            elseif best_c > best_v
+                leftD = d_thr+1
+            else
+                leftD = rightD
+                break
+            end
         end
     end
     df = DataFrame(
