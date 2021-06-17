@@ -123,7 +123,7 @@ function optimize_contagion_thresholds(N::Int64=1024, f::Float64=0.1, G::Int64=1
     return best_ϵ, best_r_thr, best_d_thr
 end
 
-function optimize_contagion_thresholds(N::Int64=1024, f::Float64=0.1, bound::Float64=1e-10)
+function optimize_contagion(N::Int64=1024, f::Float64=0.1, bound::Float64=1e-10)
     # Search for all the optimal parameters for a given system size and security bound.
     leftD::Int64 = 1
     rightD::Int64 = N
