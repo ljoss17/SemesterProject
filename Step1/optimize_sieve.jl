@@ -18,7 +18,7 @@ function sieve_find_threshold(E::Int64=150, G::Int64=18, N::Int64=1024, f::Float
     best_ethr::Int64 = 0
     while left < right
         tmp_ethr = floor(Int, (left+right)/2)
-        println("left : $left, right : $right, E_thr : $tmp_ethr")
+        #println("left : $left, right : $right, E_thr : $tmp_ethr")
         v = sieve_total_validity(G, E, tmp_ethr, N, f)
         c = sieve_consistency(E, tmp_ethr, N, f)
         ϵ = max(v, c)
@@ -55,7 +55,7 @@ function sieve_find_threshold(E::Int64=150, G::Int64=18, N::Int64=1024, f::Float
         E_thr = [best_ethr]
     )
     CSV.write(fp*"sieve_params_N($N)_E($E).csv", df)
-    println("best_ϵ : $best_ϵ, best_g : $best_g, best_ethr : $best_ethr")
+    #println("best_ϵ : $best_ϵ, best_g : $best_g, best_ethr : $best_ethr")
     return best_ϵ, best_g, best_ethr
 end
 
@@ -74,7 +74,7 @@ function sieve_get_params(bound::Float64=1e-10, N::Int64=1024, f::Float64=0.1)
     best_ethr::Int64 = 0
     while left < right
         e = floor(Int, (left+right)/2)
-        println("left : $left, right : $right, e : $e")
+        #println("left : $left, right : $right, e : $e")
         tmp_ϵ, tmp_g, tmp_ethr = sieve_find_threshold(e, g, N, f)
         # Keep track of the best ϵ computed, even if desired bound is not reached.
         # If the bound of Sieve is smaller than the desired bound, we can reduce the set E.

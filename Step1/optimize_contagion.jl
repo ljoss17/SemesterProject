@@ -28,14 +28,14 @@ function optimize_contagion_thresholds(N::Int64=1024, f::Float64=0.1, G::Int64=1
     next_best_t_d::Float128 = 1.0
     while leftD < rightD
         d_thr = floor(Int, (leftD+rightD)/2)
-        println("leftD : $leftD, rightD : $rightD, d_thr : $d_thr")
+        #println("leftD : $leftD, rightD : $rightD, d_thr : $d_thr")
         leftR = 1
         # The requirements are R_thr/R < D_thr/D and  R_thr < R.
         rightR = min(floor(Int, (d_thr*R)/D), R)
         v = contagion_validity(G, E, E_thr, D, d_thr, N, f)
         while leftR < rightR
             r_thr = floor(Int, (leftR+rightR)/2)
-            println("leftR : $leftR, rightR : $rightR, r_thr : $r_thr")
+            #println("leftR : $leftR, rightR : $rightR, r_thr : $r_thr")
             t = contagion_totality(E, E_thr, D, d_thr, R, r_thr, N, f)
             # If R_thr can be incremented by 1, compute to observe if t is increasing or decreasing
             # Else force the decreasing of R_thr.
@@ -74,9 +74,9 @@ function optimize_contagion_thresholds(N::Int64=1024, f::Float64=0.1, G::Int64=1
                 leftR = r_thr+1
             end
         end
-        open("tmp_res_contagion.txt", "a") do io
-            write(io, "d_thr : $d_thr, r_thr : $r_thr, ϵ : $ϵ. t : $t, v : $v, c : $c\n\n")
-        end
+        #open("tmp_res_contagion.txt", "a") do io
+        #    write(io, "d_thr : $d_thr, r_thr : $r_thr, ϵ : $ϵ. t : $t, v : $v, c : $c\n\n")
+        #end
         # If totality is the highest bound, check if it's increaseing or decreasing
         if best_ϵ == best_t
             # If D_thr can be incremented by 1, check if totality is increasing or decreasing.
@@ -119,7 +119,7 @@ function optimize_contagion_thresholds(N::Int64=1024, f::Float64=0.1, G::Int64=1
         D_thr = [best_d_thr]
     )
     CSV.write(fp_c*"contagion_params_N($N)_G($G)_Ethr($E_thr)_E($E)_R($R)_D($D).csv", df)
-    println("Best for thresholds : $best_ϵ")
+    #println("Best for thresholds : $best_ϵ")
     return best_ϵ, best_r_thr, best_d_thr
 end
 
@@ -195,4 +195,5 @@ function optimize_contagion(N::Int64=1024, f::Float64=0.1, bound::Float64=1e-10)
         avg = [avg]
     )
     CSV.write(fp_c*"contagion_params_N($N)_bound($bound).csv", df)
+    return best_ϵ, avg
 end
