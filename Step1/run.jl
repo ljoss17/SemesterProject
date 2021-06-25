@@ -9,8 +9,9 @@ end
 
 function avg_vs_security(N::Int64=1024, f::Float64=0.1)
     bound::Float64 = 0.0
+    best_ϵ::Float128 = 0.0
     x::Array{Int64, 1} = zeros(11)
-    best_ϵ::Array{Float128, 1} = zeros(11)
+    y::Array{Float128, 1} = zeros(11)
     id = 1
     for pw in -16:-6
         println("pw : $pw")
@@ -28,6 +29,7 @@ function avg_vs_security(N::Int64=1024, f::Float64=0.1)
         ylabel="Security (ϵ)",
         labels="N=$N, f=$f"
     )
+    savefig(pwd()*"/avg_vs_sec_N($N)_f($f).png")
 end
 
 if length(ARGS) == 0
